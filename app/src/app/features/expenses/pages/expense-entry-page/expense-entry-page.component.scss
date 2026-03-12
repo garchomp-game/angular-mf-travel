@@ -1,0 +1,61 @@
+.page {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: var(--space-4);
+  display: grid;
+  gap: var(--space-4);
+}
+
+.page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.form {
+  display: grid;
+  gap: var(--space-3);
+}
+
+label {
+  display: grid;
+  gap: var(--space-2);
+}
+
+input,
+textarea {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-2) var(--space-3);
+  background: var(--color-bg);
+  color: var(--color-text);
+}
+
+.detail-toggle,
+.submit {
+  border: none;
+  border-radius: var(--radius-md);
+  padding: var(--space-3);
+  background: var(--color-primary);
+  color: white;
+}
+
+.details {
+  display: grid;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+  border: 1px dashed var(--color-border);
+  background: var(--color-primary-soft);
+}
+
+.checkbox {
+  display: flex;
+  align-items: center;
+  grid-template-columns: none;
+}
+
+.error {
+  color: var(--color-danger);
+  margin: 0;
+}

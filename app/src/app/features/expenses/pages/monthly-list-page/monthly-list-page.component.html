@@ -1,0 +1,26 @@
+<main class="page">
+  <header class="page-header">
+    <h1>経費一覧</h1>
+    <app-theme-toggle />
+  </header>
+
+  <app-section-card>
+    <app-month-switcher
+      [currentMonth]="currentMonth"
+      (previous)="previousMonth()"
+      (next)="nextMonth()"
+    />
+  </app-section-card>
+
+  <app-section-card>
+    <app-search-box (queryChange)="query = $event" />
+  </app-section-card>
+
+  <div class="list">
+    @for (expense of filteredExpenses; track expense.date + expense.payer) {
+      <app-expense-card [expense]="expense" />
+    }
+  </div>
+
+  <app-bottom-nav />
+</main>

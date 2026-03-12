@@ -1,49 +1,6 @@
-.container {
-  max-width: 720px;
-  margin: 3rem auto;
-  padding: 0 1rem;
-  font-family: Arial, Helvetica, sans-serif;
-}
-
-h1 {
-  margin-bottom: 0.5rem;
-}
-
-section {
-  margin: 1.5rem 0;
-}
-
-.actions {
-  display: flex;
-  gap: 0.75rem;
-  flex-wrap: wrap;
-}
-
-button {
-  border: none;
-  border-radius: 0.5rem;
-  padding: 0.5rem 0.9rem;
-  cursor: pointer;
-  background: #1a73e8;
-  color: #fff;
-}
-
-button.warn {
-  background: #f9ab00;
-}
-
-button.error {
-  background: #d93025;
-}
-
-.status {
-  font-weight: 700;
-}
-
-.ok {
-  color: #0f9d58;
-}
-
-.ng {
-  color: #d93025;
+:host {
+  display: block;
+  min-height: 100dvh;
+  background: var(--color-bg);
+  color: var(--color-text);
 }

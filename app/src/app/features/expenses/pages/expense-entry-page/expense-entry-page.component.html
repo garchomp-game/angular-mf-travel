@@ -1,0 +1,57 @@
+<main class="page">
+  <header class="page-header">
+    <h1>経費入力</h1>
+    <app-theme-toggle />
+  </header>
+
+  <app-section-card>
+    <form [formGroup]="expenseForm" (ngSubmit)="submit()" class="form">
+      <label>
+        日付 *
+        <input type="date" formControlName="date" />
+      </label>
+
+      <label>
+        訪問先 *
+        <input type="text" formControlName="destination" placeholder="例: 大阪本社" />
+      </label>
+
+      <label>
+        支払先・内容 *
+        <input type="text" formControlName="payerDetail" placeholder="例: JR東海 / 新幹線往復" />
+      </label>
+
+      <button type="button" class="detail-toggle" (click)="toggleDetails()">
+        {{ detailsExpanded ? '詳細項目を閉じる' : '詳細項目を開く' }}
+      </button>
+
+      <section class="details" [class.open]="detailsExpanded" [hidden]="!detailsExpanded">
+        <label>
+          経費科目
+          <input type="text" formControlName="category" />
+        </label>
+        <label>
+          税区分
+          <input type="text" formControlName="taxType" />
+        </label>
+        <label>
+          事前申請番号
+          <input type="text" formControlName="preApprovalNumber" />
+        </label>
+        <label>
+          メモ
+          <textarea rows="4" formControlName="memo"></textarea>
+        </label>
+        <label class="checkbox">
+          <input type="checkbox" formControlName="saveTemplate" />
+          テンプレートとして保存する
+        </label>
+      </section>
+
+      <p class="error" *ngIf="expenseForm.invalid && expenseForm.touched">必須項目を入力してください。</p>
+      <button type="submit" class="submit">保存</button>
+    </form>
+  </app-section-card>
+
+  <app-bottom-nav />
+</main>
