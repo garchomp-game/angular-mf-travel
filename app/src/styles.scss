@@ -1,1 +1,47 @@
-/* You can add global styles to this file, and also import other style files */
+:root {
+  --color-bg: #f3f5f8;
+  --color-surface: #ffffff;
+  --color-text: #1c2430;
+  --color-muted: #5e6b7c;
+  --color-border: #d4dce6;
+  --color-primary: #1d4ed8;
+  --color-primary-soft: #dbe8ff;
+  --color-danger: #dc2626;
+
+  --radius-sm: 0.4rem;
+  --radius-md: 0.7rem;
+  --radius-lg: 1rem;
+  --radius-xl: 1.25rem;
+
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+
+  --shadow-sm: 0 2px 8px rgba(28, 36, 48, 0.08);
+  --shadow-md: 0 8px 24px rgba(28, 36, 48, 0.12);
+
+  font-family: 'Inter', 'Hiragino Kaku Gothic ProN', 'Yu Gothic', sans-serif;
+}
+
+body {
+  margin: 0;
+  background: var(--color-bg);
+  color: var(--color-text);
+}
+
+body.theme-dark {
+  --color-bg: #111827;
+  --color-surface: #1f2937;
+  --color-text: #f3f4f6;
+  --color-muted: #cbd5e1;
+  --color-border: #334155;
+  --color-primary: #60a5fa;
+  --color-primary-soft: rgba(96, 165, 250, 0.2);
+  --color-danger: #f87171;
+}
+
+* {
+  box-sizing: border-box;
+}
