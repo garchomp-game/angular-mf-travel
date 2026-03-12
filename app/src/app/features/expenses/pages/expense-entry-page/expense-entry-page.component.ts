@@ -1,9 +1,11 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { BottomNavComponent } from '../../components/bottom-nav/bottom-nav.component';
 import { SectionCardComponent } from '../../components/section-card/section-card.component';
 import { ThemeToggleComponent } from '../../components/theme-toggle/theme-toggle.component';
+
+const DETAIL_PANEL_STORAGE_KEY = 'expense-entry-details-expanded';
 
 @Component({
   selector: 'app-expense-entry-page',
@@ -12,7 +14,7 @@ import { ThemeToggleComponent } from '../../components/theme-toggle/theme-toggle
   templateUrl: './expense-entry-page.component.html',
   styleUrl: './expense-entry-page.component.scss'
 })
-export class ExpenseEntryPageComponent {
+export class ExpenseEntryPageComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
 
   detailsExpanded = false;
@@ -28,9 +30,13 @@ export class ExpenseEntryPageComponent {
     saveTemplate: [false]
   });
 
+  ngOnInit(): void {
+    this.detailsExpanded = localStorage.getItem(DETAIL_PANEL_STORAGE_KEY) === 'true';
+  }
 
   toggleDetails(): void {
     this.detailsExpanded = !this.detailsExpanded;
+    localStorage.setItem(DETAIL_PANEL_STORAGE_KEY, `${this.detailsExpanded}`);
   }
 
   submit(): void {

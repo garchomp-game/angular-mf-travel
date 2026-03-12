@@ -2,8 +2,7 @@
   <span>検索</span>
   <input
     type="search"
-    [(ngModel)]="query"
-    (input)="emitQuery()"
+    [formControl]="searchControl"
     placeholder="訪問先・内容で検索"
     aria-label="経費検索"
   />

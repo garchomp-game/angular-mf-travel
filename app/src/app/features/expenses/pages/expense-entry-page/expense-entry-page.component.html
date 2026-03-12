@@ -21,11 +21,17 @@
         <input type="text" formControlName="payerDetail" placeholder="例: JR東海 / 新幹線往復" />
       </label>
 
-      <button type="button" class="detail-toggle" (click)="toggleDetails()">
+      <button
+        type="button"
+        class="detail-toggle"
+        (click)="toggleDetails()"
+        [attr.aria-expanded]="detailsExpanded"
+        aria-controls="expense-details-panel"
+      >
         {{ detailsExpanded ? '詳細項目を閉じる' : '詳細項目を開く' }}
       </button>
 
-      <section class="details" [class.open]="detailsExpanded" [hidden]="!detailsExpanded">
+      <section id="expense-details-panel" class="details" [class.open]="detailsExpanded" [hidden]="!detailsExpanded">
         <label>
           経費科目
           <input type="text" formControlName="category" />
