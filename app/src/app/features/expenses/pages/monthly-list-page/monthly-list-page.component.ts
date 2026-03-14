@@ -57,8 +57,6 @@ export class MonthlyListPageComponent implements OnInit {
       this.notice = '保存に成功しました。';
     } else if (status === 'updated') {
       this.notice = '編集に成功しました。';
-    } else if (status === 'deleted') {
-      this.notice = '削除に成功しました。';
     }
   }
 

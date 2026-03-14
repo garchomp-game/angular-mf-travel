@@ -42,8 +42,13 @@ test('CSV出力成功条件: 表示中の絞り込み結果を含むCSVをダウ
   expect(download.suggestedFilename()).toContain('expenses-2026-03.csv');
 
   const stream = await download.createReadStream();
+  expect(stream).not.toBeNull();
+  if (!stream) {
+    return;
+  }
+
   let csv = '';
-  for await (const chunk of stream!) {
+  for await (const chunk of stream) {
     csv += chunk.toString();
   }
 

@@ -41,6 +41,10 @@ const DEFAULT_EXPENSES: ExpenseRecord[] = [
 export class ExpenseStoreService {
   listByMonth(monthLabel: string): ExpenseRecord[] {
     const month = this.toMonthKey(monthLabel);
+    if (!month) {
+      return [];
+    }
+
     return this.read().filter((expense) => expense.date.startsWith(month));
   }
 
@@ -51,6 +55,11 @@ export class ExpenseStoreService {
   save(draft: ExpenseDraft, id?: string): ExpenseRecord {
     const current = this.read();
     if (id) {
+      const existing = current.find((item) => item.id === id);
+      if (!existing) {
+        throw new Error(`Expense not found: ${id}`);
+      }
+
       const updated: ExpenseRecord = { ...draft, id };
       const next = current.map((item) => (item.id === id ? updated : item));
       this.write(next);
@@ -89,7 +98,13 @@ export class ExpenseStoreService {
     }
 
     try {
-      return JSON.parse(raw) as ExpenseRecord[];
+      const parsed = JSON.parse(raw);
+      if (!Array.isArray(parsed)) {
+        this.write(DEFAULT_EXPENSES);
+        return [...DEFAULT_EXPENSES];
+      }
+
+      return parsed.filter(this.isExpenseRecord);
     } catch {
       this.write(DEFAULT_EXPENSES);
       return [...DEFAULT_EXPENSES];
@@ -102,6 +117,21 @@ export class ExpenseStoreService {
 
   private createId(): string {
     return `exp-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+  }
+
+  private isExpenseRecord(value: unknown): value is ExpenseRecord {
+    if (!value || typeof value !== 'object') {
+      return false;
+    }
+
+    const record = value as Partial<ExpenseRecord>;
+    return (
+      typeof record.id === 'string' &&
+      typeof record.date === 'string' &&
+      typeof record.destination === 'string' &&
+      typeof record.payerDetail === 'string' &&
+      typeof record.amount === 'number'
+    );
   }
 
   private toMonthKey(monthLabel: string): string {
