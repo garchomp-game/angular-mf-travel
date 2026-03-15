@@ -25,6 +25,7 @@
     "@tailwindcss/postcss": "^4.2.1",
     "debug": "^4.4.3",
     "ngx-logger": "^5.0.12",
+    "postcss": "^8.5.8",
     "rxjs": "~7.8.0",
     "tailwindcss": "^4.2.1",
     "tslib": "^2.3.0"
