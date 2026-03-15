@@ -3,14 +3,18 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../../core/auth.service';
+import { ThemeToggleComponent } from '../expenses/components/theme-toggle/theme-toggle.component';
 
 @Component({
   selector: 'app-login-page',
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, ThemeToggleComponent],
   template: `
     <main class="min-h-dvh flex items-center justify-center bg-(--color-bg) p-4">
       <div class="w-full max-w-md bg-(--color-surface) rounded-xl shadow-md border border-(--color-border) p-6">
-        <h1 class="text-2xl font-bold text-center mb-6">経費精算</h1>
+        <div class="flex items-center justify-between mb-6">
+          <h1 class="text-2xl font-bold m-0">経費精算</h1>
+          <app-theme-toggle />
+        </div>
 
         <!-- Tab switcher -->
         <div class="grid grid-cols-2 mb-6 border border-(--color-border) rounded-lg overflow-hidden">

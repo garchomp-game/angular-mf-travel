@@ -18,8 +18,11 @@ export class AuthService {
   private readonly zone = inject(NgZone);
 
   private readonly userSubject = new BehaviorSubject<User | null>(null);
+  private readonly readySubject = new BehaviorSubject<boolean>(false);
+
   readonly user$: Observable<User | null> = this.userSubject.asObservable();
   readonly isAuthenticated$ = this.user$.pipe(map((u) => !!u));
+  readonly ready$ = this.readySubject.asObservable();
 
   constructor() {
     this.initAuthState();
@@ -27,6 +30,10 @@ export class AuthService {
 
   get currentUser(): User | null {
     return this.userSubject.value;
+  }
+
+  get isReady(): boolean {
+    return this.readySubject.value;
   }
 
   async signIn(email: string, password: string): Promise<AuthResult> {
@@ -65,18 +72,24 @@ export class AuthService {
     if (!supabase) return;
 
     await supabase.auth.signOut();
-    this.userSubject.next(null);
-    this.logger.info('[Auth] ログアウト');
-    void this.router.navigate(['/login']);
+    this.zone.run(() => {
+      this.userSubject.next(null);
+      this.logger.info('[Auth] ログアウト');
+      void this.router.navigate(['/login']);
+    });
   }
 
   private initAuthState(): void {
-    if (!supabase) return;
+    if (!supabase) {
+      this.readySubject.next(true);
+      return;
+    }
 
     // Get initial session
     supabase.auth.getSession().then(({ data }) => {
       this.zone.run(() => {
         this.userSubject.next(data.session?.user ?? null);
+        this.readySubject.next(true);
       });
     });
 
@@ -84,6 +97,9 @@ export class AuthService {
     supabase.auth.onAuthStateChange((_event, session) => {
       this.zone.run(() => {
         this.userSubject.next(session?.user ?? null);
+        if (!this.readySubject.value) {
+          this.readySubject.next(true);
+        }
       });
     });
   }

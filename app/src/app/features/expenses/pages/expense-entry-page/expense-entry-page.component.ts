@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, NgZone, OnInit, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ExpenseSupabaseService } from '../../data/expense-supabase.service';
@@ -115,6 +115,8 @@ export class ExpenseEntryPageComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly expenseService = inject(ExpenseSupabaseService);
   private readonly auth = inject(AuthService);
+  private readonly cdr = inject(ChangeDetectorRef);
+  private readonly zone = inject(NgZone);
 
   detailsExpanded = false;
   editId: string | null = null;
@@ -153,6 +155,7 @@ export class ExpenseEntryPageComponent implements OnInit {
       memo: target.memo ?? '',
     });
     this.detailsExpanded = true;
+    this.cdr.detectChanges();
   }
 
   toggleDetails(): void {
@@ -183,11 +186,16 @@ export class ExpenseEntryPageComponent implements OnInit {
 
     if (!result) {
       this.errorMessage = '保存に失敗しました。再度お試しください。';
+      this.cdr.detectChanges();
       return;
     }
 
-    void this.router.navigate(['/list'], {
-      queryParams: { status: this.editId ? 'updated' : 'saved' },
+    this.zone.run(() => {
+      this.saving = false;
+      this.cdr.detectChanges();
+      void this.router.navigate(['/list'], {
+        queryParams: { status: this.editId ? 'updated' : 'saved' },
+      });
     });
   }
 

@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { BottomNavComponent } from '../../components/bottom-nav/bottom-nav.component';
 import { ExpenseCardComponent } from '../../components/expense-card/expense-card.component';
@@ -79,6 +79,7 @@ export class MonthlyListPageComponent implements OnInit {
   private readonly auth = inject(AuthService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
+  private readonly cdr = inject(ChangeDetectorRef);
 
   months = ['2026年03月', '2026年02月', '2026年01月'];
   monthIndex = 0;
@@ -135,6 +136,7 @@ export class MonthlyListPageComponent implements OnInit {
       this.notice = '削除に成功しました。';
       await this.loadExpenses();
     }
+    this.cdr.detectChanges();
   }
 
   exportCsv(): void {
@@ -158,7 +160,9 @@ export class MonthlyListPageComponent implements OnInit {
 
   private async loadExpenses(): Promise<void> {
     this.loading = true;
+    this.cdr.detectChanges();
     this.expenses = await this.expenseService.listByMonth(this.currentMonth);
     this.loading = false;
+    this.cdr.detectChanges();
   }
 }
