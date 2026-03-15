@@ -5,9 +5,12 @@ const THEME_STORAGE_KEY = 'expenses-theme';
 
 @Component({
   selector: 'app-theme-toggle',
-  standalone: true,
-  templateUrl: './theme-toggle.component.html',
-  styleUrl: './theme-toggle.component.scss'
+  template: `
+    <button type="button" (click)="toggleTheme()"
+            class="border border-(--color-border) rounded-md bg-(--color-surface) text-(--color-text) px-3 py-2">
+      {{ isDark ? 'ライトテーマ' : 'ダークテーマ' }}
+    </button>
+  `,
 })
 export class ThemeToggleComponent implements OnInit {
   isDark = false;

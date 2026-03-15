@@ -4,7 +4,14 @@ import { RouterOutlet } from '@angular/router';
 @Component({
   selector: 'app-root',
   imports: [RouterOutlet],
-  templateUrl: './app.html',
-  styleUrl: './app.scss'
+  template: `<router-outlet />`,
+  styles: `
+    :host {
+      display: block;
+      min-height: 100dvh;
+      background: var(--color-bg);
+      color: var(--color-text);
+    }
+  `,
 })
 export class App {}

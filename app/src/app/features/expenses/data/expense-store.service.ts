@@ -1,4 +1,5 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
+import { LoggerService } from '../../../core/logger.service';
 
 export interface ExpenseRecord {
   id: string;
@@ -48,6 +49,7 @@ const DEFAULT_EXPENSES: ExpenseRecord[] = [
 
 @Injectable({ providedIn: 'root' })
 export class ExpenseStoreService {
+  private readonly logger = inject(LoggerService);
   listByMonth(monthLabel: string): ExpenseRecord[] {
     const month = this.toMonthKey(monthLabel);
     if (!month) {

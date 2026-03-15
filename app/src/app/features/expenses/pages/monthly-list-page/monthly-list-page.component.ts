@@ -11,7 +11,6 @@ import { ExpenseRecord, ExpenseStoreService } from '../../data/expense-store.ser
 
 @Component({
   selector: 'app-monthly-list-page',
-  standalone: true,
   imports: [
     CommonModule,
     MonthSwitcherComponent,
@@ -21,8 +20,50 @@ import { ExpenseRecord, ExpenseStoreService } from '../../data/expense-store.ser
     ThemeToggleComponent,
     SectionCardComponent,
   ],
-  templateUrl: './monthly-list-page.component.html',
-  styleUrl: './monthly-list-page.component.scss',
+  template: `
+    <main class="max-w-[720px] mx-auto p-4 grid gap-4">
+      <header class="flex items-center justify-between">
+        <h1>経費一覧</h1>
+        <app-theme-toggle />
+      </header>
+
+      <app-section-card>
+        <app-month-switcher
+          [currentMonth]="currentMonth"
+          (previous)="previousMonth()"
+          (next)="nextMonth()"
+        />
+      </app-section-card>
+
+      <app-section-card>
+        <app-search-box (queryChange)="query = $event" />
+        <button type="button" (click)="exportCsv()"
+                class="mt-2 border border-(--color-border) rounded-md bg-(--color-surface) text-(--color-text) px-3 py-2">CSV出力</button>
+      </app-section-card>
+
+      <p *ngIf="notice" class="text-(--color-primary) font-medium">{{ notice }}</p>
+
+      <div class="grid gap-3">
+        @for (expense of filteredExpenses; track expense.id) {
+          <div [attr.data-testid]="'expense-item-' + expense.id">
+            <app-expense-card [expense]="expense" />
+            <div class="flex gap-2 mt-1">
+              <button type="button" (click)="edit(expense.id)"
+                      class="border border-(--color-border) rounded-md bg-(--color-surface) text-(--color-text) px-3 py-1 text-sm">編集</button>
+              <button type="button" (click)="remove(expense.id)"
+                      class="border border-(--color-danger) rounded-md bg-(--color-surface) text-(--color-danger) px-3 py-1 text-sm">削除</button>
+            </div>
+          </div>
+        }
+
+        @if (filteredExpenses.length === 0) {
+          <p class="text-(--color-muted) text-center">該当データなし</p>
+        }
+      </div>
+
+      <app-bottom-nav />
+    </main>
+  `,
 })
 export class MonthlyListPageComponent implements OnInit {
   private readonly expenseStore = inject(ExpenseStoreService);
