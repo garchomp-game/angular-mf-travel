@@ -1,6 +1,6 @@
 import { CurrencyPipe, DatePipe, NgIf } from '@angular/common';
 import { Component, Input } from '@angular/core';
-import { ExpenseRecord } from '../../data/expense-store.service';
+import { ExpenseRecord } from '../../data/expense-supabase.service';
 
 @Component({
   selector: 'app-expense-card',

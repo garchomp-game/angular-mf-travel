@@ -2,10 +2,11 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { ExpenseStoreService } from '../../data/expense-store.service';
+import { ExpenseSupabaseService } from '../../data/expense-supabase.service';
 import { BottomNavComponent } from '../../components/bottom-nav/bottom-nav.component';
 import { SectionCardComponent } from '../../components/section-card/section-card.component';
 import { ThemeToggleComponent } from '../../components/theme-toggle/theme-toggle.component';
+import { AuthService } from '../../../../core/auth.service';
 
 const DETAIL_PANEL_STORAGE_KEY = 'expense-entry-details-expanded';
 
@@ -22,7 +23,11 @@ const DETAIL_PANEL_STORAGE_KEY = 'expense-entry-details-expanded';
     <main class="max-w-[720px] mx-auto p-4 grid gap-4">
       <header class="flex items-center justify-between">
         <h1>{{ editId ? '経費編集' : '経費入力' }}</h1>
-        <app-theme-toggle />
+        <div class="flex items-center gap-2">
+          <app-theme-toggle />
+          <button type="button" (click)="logout()"
+                  class="border border-(--color-border) rounded-md bg-(--color-surface) text-(--color-muted) px-3 py-2 text-sm">ログアウト</button>
+        </div>
       </header>
 
       <app-section-card>
@@ -86,16 +91,17 @@ const DETAIL_PANEL_STORAGE_KEY = 'expense-entry-details-expanded';
               <textarea rows="4" formControlName="memo"
                         class="border border-(--color-border) rounded-md px-3 py-2 bg-(--color-bg) text-(--color-text)"></textarea>
             </label>
-            <label class="flex items-center gap-2">
-              <input type="checkbox" formControlName="saveTemplate" />
-              テンプレートとして保存する
-            </label>
           </section>
 
           <p class="text-(--color-danger) m-0" *ngIf="expenseForm.invalid && expenseForm.touched">
             必須項目を入力してください。
           </p>
-          <button type="submit" class="rounded-md py-3 bg-(--color-primary) text-white border-none cursor-pointer">{{ editId ? '更新' : '保存' }}</button>
+          <p class="text-(--color-danger) m-0" *ngIf="errorMessage">{{ errorMessage }}</p>
+
+          <button type="submit" [disabled]="saving"
+                  class="rounded-md py-3 bg-(--color-primary) text-white border-none cursor-pointer disabled:opacity-50">
+            {{ saving ? '保存中...' : (editId ? '更新' : '保存') }}
+          </button>
         </form>
       </app-section-card>
 
@@ -107,11 +113,13 @@ export class ExpenseEntryPageComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
-  private readonly expenseStore = inject(ExpenseStoreService);
+  private readonly expenseService = inject(ExpenseSupabaseService);
+  private readonly auth = inject(AuthService);
 
   detailsExpanded = false;
   editId: string | null = null;
-  notice = '';
+  saving = false;
+  errorMessage = '';
 
   readonly expenseForm = this.fb.group({
     date: ['', Validators.required],
@@ -122,21 +130,16 @@ export class ExpenseEntryPageComponent implements OnInit {
     taxType: [''],
     preApprovalNumber: [''],
     memo: [''],
-    saveTemplate: [false],
   });
 
-  ngOnInit(): void {
+  async ngOnInit(): Promise<void> {
     this.detailsExpanded = localStorage.getItem(DETAIL_PANEL_STORAGE_KEY) === 'true';
 
     const editId = this.route.snapshot.queryParamMap.get('edit');
-    if (!editId) {
-      return;
-    }
+    if (!editId) return;
 
-    const target = this.expenseStore.findById(editId);
-    if (!target) {
-      return;
-    }
+    const target = await this.expenseService.findById(editId);
+    if (!target) return;
 
     this.editId = target.id;
     this.expenseForm.patchValue({
@@ -157,11 +160,12 @@ export class ExpenseEntryPageComponent implements OnInit {
     localStorage.setItem(DETAIL_PANEL_STORAGE_KEY, `${this.detailsExpanded}`);
   }
 
-  submit(): void {
+  async submit(): Promise<void> {
     this.expenseForm.markAllAsTouched();
-    if (this.expenseForm.invalid) {
-      return;
-    }
+    if (this.expenseForm.invalid) return;
+
+    this.saving = true;
+    this.errorMessage = '';
 
     const payload = {
       date: this.expenseForm.controls.date.value ?? '',
@@ -174,10 +178,20 @@ export class ExpenseEntryPageComponent implements OnInit {
       memo: this.expenseForm.controls.memo.value ?? '',
     };
 
-    this.expenseStore.save(payload, this.editId ?? undefined);
-    this.notice = this.editId ? '明細を更新しました。' : '明細を保存しました。';
+    const result = await this.expenseService.save(payload, this.editId ?? undefined);
+    this.saving = false;
+
+    if (!result) {
+      this.errorMessage = '保存に失敗しました。再度お試しください。';
+      return;
+    }
+
     void this.router.navigate(['/list'], {
       queryParams: { status: this.editId ? 'updated' : 'saved' },
     });
+  }
+
+  async logout(): Promise<void> {
+    await this.auth.signOut();
   }
 }

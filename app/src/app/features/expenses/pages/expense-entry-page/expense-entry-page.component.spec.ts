@@ -2,16 +2,36 @@ import { TestBed } from '@angular/core/testing';
 import { ExpenseEntryPageComponent } from './expense-entry-page.component';
 import { provideRouter } from '@angular/router';
 import { LoggerModule, NgxLoggerLevel } from 'ngx-logger';
+import { ExpenseSupabaseService } from '../../data/expense-supabase.service';
+import { AuthService } from '../../../../core/auth.service';
 
 describe('ExpenseEntryPageComponent', () => {
+  const mockExpenseService = {
+    findById: vi.fn().mockResolvedValue(undefined),
+    save: vi.fn().mockResolvedValue({ id: 'new-1', date: '2026-03-20', destination: 'テスト', payerDetail: 'JR', amount: 1000 }),
+    toCsv: vi.fn(),
+  };
+
+  const mockAuthService = {
+    signOut: vi.fn().mockResolvedValue(undefined),
+    currentUser: { id: 'user-1' },
+    user$: { pipe: vi.fn().mockReturnValue({ subscribe: vi.fn() }) },
+    isAuthenticated$: { pipe: vi.fn().mockReturnValue({ subscribe: vi.fn() }) },
+  };
+
   beforeEach(async () => {
     localStorage.clear();
+    vi.clearAllMocks();
     await TestBed.configureTestingModule({
       imports: [
         ExpenseEntryPageComponent,
         LoggerModule.forRoot({ level: NgxLoggerLevel.OFF, disableConsoleLogging: true }),
       ],
-      providers: [provideRouter([])],
+      providers: [
+        provideRouter([]),
+        { provide: ExpenseSupabaseService, useValue: mockExpenseService },
+        { provide: AuthService, useValue: mockAuthService },
+      ],
     }).compileComponents();
   });
 
@@ -39,11 +59,11 @@ describe('ExpenseEntryPageComponent', () => {
     expect(form.get('amount')).toBeTruthy();
   });
 
-  it('should not submit when form is invalid', () => {
+  it('should not submit when form is invalid', async () => {
     const fixture = TestBed.createComponent(ExpenseEntryPageComponent);
     fixture.detectChanges();
-    fixture.componentInstance.submit();
-    expect(fixture.componentInstance.expenseForm.touched).toBe(true);
+    await fixture.componentInstance.submit();
+    expect(mockExpenseService.save).not.toHaveBeenCalled();
   });
 
   it('should toggle details panel', () => {
