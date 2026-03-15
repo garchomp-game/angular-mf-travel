@@ -1,6 +1,6 @@
 <main class="page">
   <header class="page-header">
-    <h1>経費入力</h1>
+    <h1>{{ editId ? '経費編集' : '経費入力' }}</h1>
     <app-theme-toggle />
   </header>
 
@@ -21,6 +21,11 @@
         <input type="text" formControlName="payerDetail" placeholder="例: JR東海 / 新幹線往復" />
       </label>
 
+      <label>
+        金額 *
+        <input type="number" min="1" formControlName="amount" placeholder="例: 1200" />
+      </label>
+
       <button
         type="button"
         class="detail-toggle"
@@ -31,7 +36,12 @@
         {{ detailsExpanded ? '詳細項目を閉じる' : '詳細項目を開く' }}
       </button>
 
-      <section id="expense-details-panel" class="details" [class.open]="detailsExpanded" [hidden]="!detailsExpanded">
+      <section
+        id="expense-details-panel"
+        class="details"
+        [class.open]="detailsExpanded"
+        [hidden]="!detailsExpanded"
+      >
         <label>
           経費科目
           <input type="text" formControlName="category" />
@@ -54,8 +64,10 @@
         </label>
       </section>
 
-      <p class="error" *ngIf="expenseForm.invalid && expenseForm.touched">必須項目を入力してください。</p>
-      <button type="submit" class="submit">保存</button>
+      <p class="error" *ngIf="expenseForm.invalid && expenseForm.touched">
+        必須項目を入力してください。
+      </p>
+      <button type="submit" class="submit">{{ editId ? '更新' : '保存' }}</button>
     </form>
   </app-section-card>
 

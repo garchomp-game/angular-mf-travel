@@ -1,9 +1,9 @@
 <article class="expense-card">
   <header>
     <p>{{ expense.date | date: 'M/d (EEE)' : '' : 'ja-JP' }}</p>
-    <strong>{{ expense.amount | currency: 'JPY':'symbol':'1.0-0':'ja' }}</strong>
+    <strong>{{ expense.amount | currency: 'JPY' : 'symbol' : '1.0-0' : 'ja' }}</strong>
   </header>
   <h3>{{ expense.destination }}</h3>
-  <p>{{ expense.payer }} / {{ expense.detail }}</p>
+  <p>{{ expense.payerDetail }}</p>
   <small *ngIf="expense.category">{{ expense.category }}</small>
 </article>
