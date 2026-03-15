@@ -84,7 +84,8 @@ export class MonthlyListPageComponent implements OnInit {
 
   exportCsv(): void {
     const csv = this.expenseStore.toCsv(this.filteredExpenses);
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+    const bom = '\ufeff';
+    const blob = new Blob([bom + csv], { type: 'text/csv;charset=utf-8' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;

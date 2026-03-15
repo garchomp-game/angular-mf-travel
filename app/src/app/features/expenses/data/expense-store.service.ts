@@ -35,6 +35,15 @@ const DEFAULT_EXPENSES: ExpenseRecord[] = [
     category: '旅費交通費',
     memo: '雨天のため利用',
   },
+  {
+    id: 'exp-seed-3',
+    date: '2026-02-14',
+    destination: '名古屋営業所',
+    payerDetail: '近鉄 / 顧客訪問',
+    amount: 1800,
+    category: '旅費交通費',
+    memo: '定例訪問',
+  },
 ];
 
 @Injectable({ providedIn: 'root' })

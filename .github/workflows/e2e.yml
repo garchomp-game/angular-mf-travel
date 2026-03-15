@@ -28,6 +28,9 @@ jobs:
         run: bun run pw:install --with-deps
 
       - name: Run E2E tests
+        env:
+          SUPABASE_URL: http://localhost:54321
+          SUPABASE_ANON_KEY: dummy-anon-key-for-ci
         run: bun run e2e
 
       - name: Upload Playwright artifacts

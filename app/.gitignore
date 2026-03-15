@@ -49,3 +49,9 @@ Thumbs.db
 !.env.example
 src/environments/*.local.ts
 public/app-config.local.js
+public/app-config.js
+
+# Playwright artifacts
+e2e/.auth/
+test-results/
+playwright-report/
