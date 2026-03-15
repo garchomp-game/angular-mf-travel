@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -55,6 +55,7 @@ export class LoginPageComponent {
   private readonly auth = inject(AuthService);
   private readonly fb = inject(FormBuilder);
   private readonly router = inject(Router);
+  private readonly cdr = inject(ChangeDetectorRef);
 
   isSignUp = false;
   loading = false;
@@ -88,15 +89,18 @@ export class LoginPageComponent {
 
     if (!result.success) {
       this.errorMessage = result.error ?? '不明なエラーが発生しました';
+      this.cdr.detectChanges();
       return;
     }
 
     if (this.isSignUp) {
       this.successMessage = '登録が完了しました。ログインしてください。';
       this.isSignUp = false;
+      this.cdr.detectChanges();
       return;
     }
 
+    this.cdr.detectChanges();
     void this.router.navigate(['/list']);
   }
 }
