@@ -8,7 +8,13 @@ import { AuthService } from '../../../../core/auth.service';
 describe('ExpenseEntryPageComponent', () => {
   const mockExpenseService = {
     findById: vi.fn().mockResolvedValue(undefined),
-    save: vi.fn().mockResolvedValue({ id: 'new-1', date: '2026-03-20', destination: 'テスト', payerDetail: 'JR', amount: 1000 }),
+    save: vi.fn().mockResolvedValue({
+      id: 'new-1',
+      date: '2026-03-20',
+      destination: 'テスト',
+      payerDetail: 'JR',
+      amount: 1000,
+    }),
     toCsv: vi.fn(),
   };
 

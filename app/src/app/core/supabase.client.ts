@@ -12,8 +12,6 @@ export const SUPABASE_CLIENT = new InjectionToken<SupabaseClient | null>('supaba
   providedIn: 'root',
   factory: () => {
     const config = inject(APP_CONFIG);
-    return config.supabaseUrl
-      ? createClient(config.supabaseUrl, config.supabaseAnonKey)
-      : null;
+    return config.supabaseUrl ? createClient(config.supabaseUrl, config.supabaseAnonKey) : null;
   },
 });

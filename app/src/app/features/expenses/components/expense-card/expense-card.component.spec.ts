@@ -17,7 +17,11 @@ describe('ExpenseCardComponent', () => {
   it('should create', () => {
     const fixture = TestBed.createComponent(ExpenseCardComponent);
     fixture.componentInstance.expense = {
-      id: '1', date: '2026-03-01', destination: 'テスト', payerDetail: 'JR', amount: 1000,
+      id: '1',
+      date: '2026-03-01',
+      destination: 'テスト',
+      payerDetail: 'JR',
+      amount: 1000,
     };
     fixture.detectChanges();
     expect(fixture.componentInstance).toBeTruthy();
@@ -26,7 +30,11 @@ describe('ExpenseCardComponent', () => {
   it('should display expense destination', () => {
     const fixture = TestBed.createComponent(ExpenseCardComponent);
     fixture.componentInstance.expense = {
-      id: '1', date: '2026-03-01', destination: '大阪本社', payerDetail: 'JR東海', amount: 27200,
+      id: '1',
+      date: '2026-03-01',
+      destination: '大阪本社',
+      payerDetail: 'JR東海',
+      amount: 27200,
     };
     fixture.detectChanges();
     expect(fixture.nativeElement.textContent).toContain('大阪本社');
@@ -35,7 +43,11 @@ describe('ExpenseCardComponent', () => {
   it('should display formatted amount', () => {
     const fixture = TestBed.createComponent(ExpenseCardComponent);
     fixture.componentInstance.expense = {
-      id: '1', date: '2026-03-01', destination: 'テスト', payerDetail: 'JR', amount: 27200,
+      id: '1',
+      date: '2026-03-01',
+      destination: 'テスト',
+      payerDetail: 'JR',
+      amount: 27200,
     };
     fixture.detectChanges();
     expect(fixture.nativeElement.textContent).toContain('27,200');

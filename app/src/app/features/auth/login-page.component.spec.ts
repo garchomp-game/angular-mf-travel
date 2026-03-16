@@ -13,10 +13,7 @@ describe('LoginPageComponent', () => {
     vi.clearAllMocks();
     await TestBed.configureTestingModule({
       imports: [LoginPageComponent],
-      providers: [
-        provideRouter([]),
-        { provide: AuthService, useValue: mockAuthService },
-      ],
+      providers: [provideRouter([]), { provide: AuthService, useValue: mockAuthService }],
     }).compileComponents();
   });
 

@@ -29,10 +29,10 @@ const supabaseAnonKey = process.env.SUPABASE_ANON_KEY ?? '';
 const payload = `window.__APP_CONFIG__ = ${JSON.stringify(
   {
     supabaseUrl,
-    supabaseAnonKey
+    supabaseAnonKey,
   },
   null,
-  2
+  2,
 )};\n`;
 
 writeFileSync(new URL('../public/app-config.js', import.meta.url), payload, 'utf8');

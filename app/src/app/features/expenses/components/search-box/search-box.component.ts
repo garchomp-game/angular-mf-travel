@@ -26,10 +26,8 @@ export class SearchBoxComponent implements OnInit {
   readonly searchControl = new FormControl('', { nonNullable: true });
 
   ngOnInit(): void {
-    this.searchControl.valueChanges
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((value) => {
-        this.queryChange.emit(value.trim());
-      });
+    this.searchControl.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((value) => {
+      this.queryChange.emit(value.trim());
+    });
   }
 }

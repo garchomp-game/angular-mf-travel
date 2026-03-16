@@ -12,12 +12,8 @@ describe('ExpenseSupabaseService', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      imports: [
-        LoggerModule.forRoot({ level: NgxLoggerLevel.OFF, disableConsoleLogging: true }),
-      ],
-      providers: [
-        { provide: AuthService, useValue: mockAuthService },
-      ],
+      imports: [LoggerModule.forRoot({ level: NgxLoggerLevel.OFF, disableConsoleLogging: true })],
+      providers: [{ provide: AuthService, useValue: mockAuthService }],
     });
   });
 
@@ -29,7 +25,15 @@ describe('ExpenseSupabaseService', () => {
   it('should generate CSV from expenses', () => {
     const service = TestBed.inject(ExpenseSupabaseService);
     const csv = service.toCsv([
-      { id: '1', date: '2026-03-01', destination: 'テスト', payerDetail: 'JR', amount: 1000, category: '旅費', memo: 'テスト' },
+      {
+        id: '1',
+        date: '2026-03-01',
+        destination: 'テスト',
+        payerDetail: 'JR',
+        amount: 1000,
+        category: '旅費',
+        memo: 'テスト',
+      },
     ]);
     expect(csv).toContain('日付');
     expect(csv).toContain('テスト');

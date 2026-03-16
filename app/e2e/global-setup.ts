@@ -57,7 +57,8 @@ export default async function globalSetup(config: FullConfig): Promise<void> {
   const serviceRoleKey = process.env['SUPABASE_SERVICE_ROLE_KEY'];
   const anonKey = process.env['SUPABASE_ANON_KEY'];
 
-  if (!serviceRoleKey) throw new Error('SUPABASE_SERVICE_ROLE_KEY env var is required for E2E setup');
+  if (!serviceRoleKey)
+    throw new Error('SUPABASE_SERVICE_ROLE_KEY env var is required for E2E setup');
   if (!anonKey) throw new Error('SUPABASE_ANON_KEY env var is required for E2E setup');
 
   // --- 1. Seed data via admin API ---

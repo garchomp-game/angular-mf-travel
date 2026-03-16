@@ -28,7 +28,9 @@ test('signup → login → list ページ表示まで', async ({ page }) => {
   });
 
   page.on('requestfailed', (request) => {
-    networkLogs.push(`FAILED ${request.method()} ${request.url()} - ${request.failure()?.errorText}`);
+    networkLogs.push(
+      `FAILED ${request.method()} ${request.url()} - ${request.failure()?.errorText}`,
+    );
   });
 
   // ログインページへ

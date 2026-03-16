@@ -25,8 +25,13 @@ const DETAIL_PANEL_STORAGE_KEY = 'expense-entry-details-expanded';
         <h1>{{ editId ? '経費編集' : '経費入力' }}</h1>
         <div class="flex items-center gap-2">
           <app-theme-toggle />
-          <button type="button" (click)="logout()"
-                  class="border border-(--color-border) rounded-md bg-(--color-surface) text-(--color-muted) px-3 py-2 text-sm">ログアウト</button>
+          <button
+            type="button"
+            (click)="logout()"
+            class="border border-(--color-border) rounded-md bg-(--color-surface) text-(--color-muted) px-3 py-2 text-sm"
+          >
+            ログアウト
+          </button>
         </div>
       </header>
 
@@ -34,26 +39,42 @@ const DETAIL_PANEL_STORAGE_KEY = 'expense-entry-details-expanded';
         <form [formGroup]="expenseForm" (ngSubmit)="submit()" class="grid gap-3">
           <label class="grid gap-2">
             日付 *
-            <input type="date" formControlName="date"
-                   class="border border-(--color-border) rounded-md px-3 py-2 bg-(--color-bg) text-(--color-text)" />
+            <input
+              type="date"
+              formControlName="date"
+              class="border border-(--color-border) rounded-md px-3 py-2 bg-(--color-bg) text-(--color-text)"
+            />
           </label>
 
           <label class="grid gap-2">
             訪問先 *
-            <input type="text" formControlName="destination" placeholder="例: 大阪本社"
-                   class="border border-(--color-border) rounded-md px-3 py-2 bg-(--color-bg) text-(--color-text)" />
+            <input
+              type="text"
+              formControlName="destination"
+              placeholder="例: 大阪本社"
+              class="border border-(--color-border) rounded-md px-3 py-2 bg-(--color-bg) text-(--color-text)"
+            />
           </label>
 
           <label class="grid gap-2">
             支払先・内容 *
-            <input type="text" formControlName="payerDetail" placeholder="例: JR東海 / 新幹線往復"
-                   class="border border-(--color-border) rounded-md px-3 py-2 bg-(--color-bg) text-(--color-text)" />
+            <input
+              type="text"
+              formControlName="payerDetail"
+              placeholder="例: JR東海 / 新幹線往復"
+              class="border border-(--color-border) rounded-md px-3 py-2 bg-(--color-bg) text-(--color-text)"
+            />
           </label>
 
           <label class="grid gap-2">
             金額 *
-            <input type="number" min="1" formControlName="amount" placeholder="例: 1200"
-                   class="border border-(--color-border) rounded-md px-3 py-2 bg-(--color-bg) text-(--color-text)" />
+            <input
+              type="number"
+              min="1"
+              formControlName="amount"
+              placeholder="例: 1200"
+              class="border border-(--color-border) rounded-md px-3 py-2 bg-(--color-bg) text-(--color-text)"
+            />
           </label>
 
           <button
@@ -73,23 +94,35 @@ const DETAIL_PANEL_STORAGE_KEY = 'expense-entry-details-expanded';
           >
             <label class="grid gap-2">
               経費科目
-              <input type="text" formControlName="category"
-                     class="border border-(--color-border) rounded-md px-3 py-2 bg-(--color-bg) text-(--color-text)" />
+              <input
+                type="text"
+                formControlName="category"
+                class="border border-(--color-border) rounded-md px-3 py-2 bg-(--color-bg) text-(--color-text)"
+              />
             </label>
             <label class="grid gap-2">
               税区分
-              <input type="text" formControlName="taxType"
-                     class="border border-(--color-border) rounded-md px-3 py-2 bg-(--color-bg) text-(--color-text)" />
+              <input
+                type="text"
+                formControlName="taxType"
+                class="border border-(--color-border) rounded-md px-3 py-2 bg-(--color-bg) text-(--color-text)"
+              />
             </label>
             <label class="grid gap-2">
               事前申請番号
-              <input type="text" formControlName="preApprovalNumber"
-                     class="border border-(--color-border) rounded-md px-3 py-2 bg-(--color-bg) text-(--color-text)" />
+              <input
+                type="text"
+                formControlName="preApprovalNumber"
+                class="border border-(--color-border) rounded-md px-3 py-2 bg-(--color-bg) text-(--color-text)"
+              />
             </label>
             <label class="grid gap-2">
               メモ
-              <textarea rows="4" formControlName="memo"
-                        class="border border-(--color-border) rounded-md px-3 py-2 bg-(--color-bg) text-(--color-text)"></textarea>
+              <textarea
+                rows="4"
+                formControlName="memo"
+                class="border border-(--color-border) rounded-md px-3 py-2 bg-(--color-bg) text-(--color-text)"
+              ></textarea>
             </label>
           </section>
 
@@ -98,9 +131,12 @@ const DETAIL_PANEL_STORAGE_KEY = 'expense-entry-details-expanded';
           </p>
           <p class="text-(--color-danger) m-0" *ngIf="errorMessage">{{ errorMessage }}</p>
 
-          <button type="submit" [disabled]="saving"
-                  class="rounded-md py-3 bg-(--color-primary) text-white border-none cursor-pointer disabled:opacity-50">
-            {{ saving ? '保存中...' : (editId ? '更新' : '保存') }}
+          <button
+            type="submit"
+            [disabled]="saving"
+            class="rounded-md py-3 bg-(--color-primary) text-white border-none cursor-pointer disabled:opacity-50"
+          >
+            {{ saving ? '保存中...' : editId ? '更新' : '保存' }}
           </button>
         </form>
       </app-section-card>

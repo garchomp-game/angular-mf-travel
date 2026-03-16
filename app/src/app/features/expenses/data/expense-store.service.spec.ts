@@ -8,9 +8,7 @@ describe('ExpenseStoreService', () => {
   beforeEach(() => {
     localStorage.clear();
     TestBed.configureTestingModule({
-      imports: [
-        LoggerModule.forRoot({ level: NgxLoggerLevel.OFF, disableConsoleLogging: true }),
-      ],
+      imports: [LoggerModule.forRoot({ level: NgxLoggerLevel.OFF, disableConsoleLogging: true })],
     });
     service = TestBed.inject(ExpenseStoreService);
   });

@@ -12,7 +12,7 @@ export const authGuard: CanActivateFn = () => {
   const router = inject(Router);
 
   return auth.ready$.pipe(
-    filter((ready) => ready),    // Wait until auth state is resolved
+    filter((ready) => ready), // Wait until auth state is resolved
     take(1),
     switchMap(() => auth.isAuthenticated$),
     take(1),

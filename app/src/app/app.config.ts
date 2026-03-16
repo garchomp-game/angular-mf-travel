@@ -1,4 +1,10 @@
-import { ApplicationConfig, ErrorHandler, importProvidersFrom, LOCALE_ID, provideBrowserGlobalErrorListeners } from '@angular/core';
+import {
+  ApplicationConfig,
+  ErrorHandler,
+  importProvidersFrom,
+  LOCALE_ID,
+  provideBrowserGlobalErrorListeners,
+} from '@angular/core';
 import { provideRouter } from '@angular/router';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { LoggerModule, NgxLoggerLevel } from 'ngx-logger';
@@ -23,7 +29,7 @@ export const appConfig: ApplicationConfig = {
         level: NgxLoggerLevel.DEBUG,
         serverLogLevel: NgxLoggerLevel.OFF,
         disableConsoleLogging: false,
-      })
+      }),
     ),
   ],
 };

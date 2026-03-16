@@ -27,8 +27,13 @@ import { AuthService } from '../../../../core/auth.service';
         <h1>経費一覧</h1>
         <div class="flex items-center gap-2">
           <app-theme-toggle />
-          <button type="button" (click)="logout()"
-                  class="border border-(--color-border) rounded-md bg-(--color-surface) text-(--color-muted) px-3 py-2 text-sm">ログアウト</button>
+          <button
+            type="button"
+            (click)="logout()"
+            class="border border-(--color-border) rounded-md bg-(--color-surface) text-(--color-muted) px-3 py-2 text-sm"
+          >
+            ログアウト
+          </button>
         </div>
       </header>
 
@@ -42,8 +47,13 @@ import { AuthService } from '../../../../core/auth.service';
 
       <app-section-card>
         <app-search-box (queryChange)="query = $event" />
-        <button type="button" (click)="exportCsv()"
-                class="mt-2 border border-(--color-border) rounded-md bg-(--color-surface) text-(--color-text) px-3 py-2">CSV出力</button>
+        <button
+          type="button"
+          (click)="exportCsv()"
+          class="mt-2 border border-(--color-border) rounded-md bg-(--color-surface) text-(--color-text) px-3 py-2"
+        >
+          CSV出力
+        </button>
       </app-section-card>
 
       <p *ngIf="notice" class="text-(--color-primary) font-medium">{{ notice }}</p>
@@ -56,10 +66,20 @@ import { AuthService } from '../../../../core/auth.service';
             <div [attr.data-testid]="'expense-item-' + expense.id">
               <app-expense-card [expense]="expense" />
               <div class="flex gap-2 mt-1">
-                <button type="button" (click)="edit(expense.id)"
-                        class="border border-(--color-border) rounded-md bg-(--color-surface) text-(--color-text) px-3 py-1 text-sm">編集</button>
-                <button type="button" (click)="remove(expense.id)"
-                        class="border border-(--color-danger) rounded-md bg-(--color-surface) text-(--color-danger) px-3 py-1 text-sm">削除</button>
+                <button
+                  type="button"
+                  (click)="edit(expense.id)"
+                  class="border border-(--color-border) rounded-md bg-(--color-surface) text-(--color-text) px-3 py-1 text-sm"
+                >
+                  編集
+                </button>
+                <button
+                  type="button"
+                  (click)="remove(expense.id)"
+                  class="border border-(--color-danger) rounded-md bg-(--color-surface) text-(--color-danger) px-3 py-1 text-sm"
+                >
+                  削除
+                </button>
               </div>
             </div>
           }

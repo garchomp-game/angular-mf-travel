@@ -1,8 +1,8 @@
 /**
  * Playwright fixtures for authenticated tests.
- * 
+ *
  * 使い方: import { test, expect } from './fixtures';
- * 
+ *
  * goto('/list') など認証が必要なページへのgotoで自動的に
  * ログインページへリダイレクトされた場合は再ログインし、
  * 元の URL へ再遷移する。

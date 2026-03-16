@@ -6,8 +6,11 @@ const THEME_STORAGE_KEY = 'expenses-theme';
 @Component({
   selector: 'app-theme-toggle',
   template: `
-    <button type="button" (click)="toggleTheme()"
-            class="border border-(--color-border) rounded-md bg-(--color-surface) text-(--color-text) px-3 py-2">
+    <button
+      type="button"
+      (click)="toggleTheme()"
+      class="border border-(--color-border) rounded-md bg-(--color-surface) text-(--color-text) px-3 py-2"
+    >
       {{ isDark ? 'ライトテーマ' : 'ダークテーマ' }}
     </button>
   `,

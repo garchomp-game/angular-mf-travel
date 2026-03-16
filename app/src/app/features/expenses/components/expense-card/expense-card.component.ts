@@ -8,7 +8,9 @@ import { ExpenseRecord } from '../../data/expense-supabase.service';
   template: `
     <article class="p-4 border border-(--color-border) rounded-lg bg-(--color-surface) shadow-sm">
       <header class="flex justify-between items-center mb-2">
-        <p class="m-0 text-(--color-muted)">{{ expense.date | date: 'M/d (EEE)' : '' : 'ja-JP' }}</p>
+        <p class="m-0 text-(--color-muted)">
+          {{ expense.date | date: 'M/d (EEE)' : '' : 'ja-JP' }}
+        </p>
         <strong>{{ expense.amount | currency: 'JPY' : 'symbol' : '1.0-0' : 'ja' }}</strong>
       </header>
       <h3 class="m-0 mb-1">{{ expense.destination }}</h3>

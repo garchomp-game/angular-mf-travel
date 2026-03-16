@@ -13,8 +13,20 @@ registerLocaleData(localeJa);
 describe('MonthlyListPageComponent', () => {
   const mockExpenseService = {
     listByMonth: vi.fn().mockResolvedValue([
-      { id: '1', date: '2026-03-08', destination: '大阪本社', payerDetail: 'JR東海', amount: 27200 },
-      { id: '2', date: '2026-03-10', destination: '福岡支店', payerDetail: 'タクシー', amount: 3200 },
+      {
+        id: '1',
+        date: '2026-03-08',
+        destination: '大阪本社',
+        payerDetail: 'JR東海',
+        amount: 27200,
+      },
+      {
+        id: '2',
+        date: '2026-03-10',
+        destination: '福岡支店',
+        payerDetail: 'タクシー',
+        amount: 3200,
+      },
     ]),
     remove: vi.fn().mockResolvedValue(true),
     toCsv: vi.fn().mockReturnValue('"日付"\n"2026-03-08"'),

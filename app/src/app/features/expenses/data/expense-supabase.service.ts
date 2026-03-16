@@ -107,10 +107,7 @@ export class ExpenseSupabaseService {
   async remove(id: string): Promise<boolean> {
     if (!this.supabase) return false;
 
-    const { error } = await this.supabase
-      .from('expense_records')
-      .delete()
-      .eq('id', id);
+    const { error } = await this.supabase.from('expense_records').delete().eq('id', id);
 
     if (error) {
       this.logger.error('[ExpenseSupabase] delete failed', { id, error });

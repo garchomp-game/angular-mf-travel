@@ -10,22 +10,38 @@ import { ThemeToggleComponent } from '../expenses/components/theme-toggle/theme-
   imports: [CommonModule, ReactiveFormsModule, ThemeToggleComponent],
   template: `
     <main class="min-h-dvh flex items-center justify-center bg-(--color-bg) p-4">
-      <div class="w-full max-w-md bg-(--color-surface) rounded-xl shadow-md border border-(--color-border) p-6">
+      <div
+        class="w-full max-w-md bg-(--color-surface) rounded-xl shadow-md border border-(--color-border) p-6"
+      >
         <div class="flex items-center justify-between mb-6">
           <h1 class="text-2xl font-bold m-0">経費精算</h1>
           <app-theme-toggle />
         </div>
 
         <!-- Tab switcher -->
-        <div class="grid grid-cols-2 mb-6 border border-(--color-border) rounded-lg overflow-hidden">
-          <button type="button"
-                  (click)="isSignUp = false"
-                  [class]="isSignUp ? 'py-2 text-(--color-muted) bg-(--color-surface)' : 'py-2 bg-(--color-primary-soft) text-(--color-primary) font-bold'">
+        <div
+          class="grid grid-cols-2 mb-6 border border-(--color-border) rounded-lg overflow-hidden"
+        >
+          <button
+            type="button"
+            (click)="isSignUp = false"
+            [class]="
+              isSignUp
+                ? 'py-2 text-(--color-muted) bg-(--color-surface)'
+                : 'py-2 bg-(--color-primary-soft) text-(--color-primary) font-bold'
+            "
+          >
             ログイン
           </button>
-          <button type="button"
-                  (click)="isSignUp = true"
-                  [class]="!isSignUp ? 'py-2 text-(--color-muted) bg-(--color-surface)' : 'py-2 bg-(--color-primary-soft) text-(--color-primary) font-bold'">
+          <button
+            type="button"
+            (click)="isSignUp = true"
+            [class]="
+              !isSignUp
+                ? 'py-2 text-(--color-muted) bg-(--color-surface)'
+                : 'py-2 bg-(--color-primary-soft) text-(--color-primary) font-bold'
+            "
+          >
             新規登録
           </button>
         </div>
@@ -33,22 +49,35 @@ import { ThemeToggleComponent } from '../expenses/components/theme-toggle/theme-
         <form [formGroup]="loginForm" (ngSubmit)="submit()" class="grid gap-4">
           <label class="grid gap-1">
             <span class="text-sm text-(--color-muted)">メールアドレス</span>
-            <input type="email" formControlName="email" placeholder="user@example.com" autocomplete="email"
-                   class="border border-(--color-border) rounded-md px-3 py-2 bg-(--color-bg) text-(--color-text)" />
+            <input
+              type="email"
+              formControlName="email"
+              placeholder="user@example.com"
+              autocomplete="email"
+              class="border border-(--color-border) rounded-md px-3 py-2 bg-(--color-bg) text-(--color-text)"
+            />
           </label>
 
           <label class="grid gap-1">
             <span class="text-sm text-(--color-muted)">パスワード</span>
-            <input type="password" formControlName="password" placeholder="6文字以上" autocomplete="current-password"
-                   class="border border-(--color-border) rounded-md px-3 py-2 bg-(--color-bg) text-(--color-text)" />
+            <input
+              type="password"
+              formControlName="password"
+              placeholder="6文字以上"
+              autocomplete="current-password"
+              class="border border-(--color-border) rounded-md px-3 py-2 bg-(--color-bg) text-(--color-text)"
+            />
           </label>
 
           <p *ngIf="errorMessage" class="text-(--color-danger) text-sm m-0">{{ errorMessage }}</p>
           <p *ngIf="successMessage" class="text-green-600 text-sm m-0">{{ successMessage }}</p>
 
-          <button type="submit" [disabled]="loading"
-                  class="rounded-md py-3 bg-(--color-primary) text-white border-none cursor-pointer disabled:opacity-50">
-            {{ loading ? '処理中...' : (isSignUp ? '登録' : 'ログイン') }}
+          <button
+            type="submit"
+            [disabled]="loading"
+            class="rounded-md py-3 bg-(--color-primary) text-white border-none cursor-pointer disabled:opacity-50"
+          >
+            {{ loading ? '処理中...' : isSignUp ? '登録' : 'ログイン' }}
           </button>
         </form>
       </div>

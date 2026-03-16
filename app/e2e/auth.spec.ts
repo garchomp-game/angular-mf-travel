@@ -60,6 +60,8 @@ test.describe('認証フロー', () => {
     await page.getByPlaceholder('6文字以上').fill('wrongpassword');
     await page.locator('form').getByRole('button', { name: 'ログイン' }).click();
 
-    await expect(page.getByText('メールアドレスまたはパスワードが正しくありません')).toBeVisible({ timeout: 10000 });
+    await expect(page.getByText('メールアドレスまたはパスワードが正しくありません')).toBeVisible({
+      timeout: 10000,
+    });
   });
 });
