@@ -1,6 +1,7 @@
 {
   "name": "angular-mf-travel",
   "private": true,
+  "type": "module",
   "scripts": {
     "check": "concurrently -g 'bun:check:server' 'bun:check:app'",
     "check:server": "cd server && bun run check",
