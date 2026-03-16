@@ -5,132 +5,9 @@ import { ExpenseRecord } from '../../data/expense-supabase.service';
 @Component({
   selector: 'app-expense-table',
   imports: [CommonModule, DatePipe],
-  styles: [
-    `
-      :host {
-        display: block;
-      }
-
-      .table-scroll {
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
-      }
-
-      table {
-        width: 100%;
-        border-collapse: collapse;
-        min-width: 700px;
-        font-size: 0.875rem;
-      }
-
-      th {
-        position: sticky;
-        top: 0;
-        background: var(--color-surface);
-        text-align: left;
-        padding: 0.75rem 0.5rem;
-        border-bottom: 2px solid var(--color-border);
-        white-space: nowrap;
-        font-weight: 600;
-        color: var(--color-muted);
-        font-size: 0.75rem;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-      }
-
-      td {
-        padding: 0.625rem 0.5rem;
-        border-bottom: 1px solid var(--color-border);
-        vertical-align: top;
-        color: var(--color-text);
-      }
-
-      tr:hover td {
-        background: var(--color-primary-soft);
-      }
-
-      .col-date {
-        white-space: nowrap;
-        width: 100px;
-      }
-
-      .col-destination {
-        font-weight: 500;
-        min-width: 120px;
-      }
-
-      .col-route {
-        min-width: 160px;
-      }
-
-      .col-trip {
-        text-align: center;
-        width: 60px;
-      }
-
-      .col-actions {
-        white-space: nowrap;
-        width: 120px;
-      }
-
-      .badge {
-        display: inline-block;
-        padding: 0.125rem 0.5rem;
-        border-radius: 9999px;
-        font-size: 0.7rem;
-        font-weight: 500;
-      }
-
-      .badge-round {
-        background: #dbeafe;
-        color: #1d4ed8;
-      }
-
-      .badge-oneway {
-        background: #f3f4f6;
-        color: #4b5563;
-      }
-
-      .btn-sm {
-        padding: 0.25rem 0.5rem;
-        border-radius: 0.375rem;
-        border: 1px solid var(--color-border);
-        background: var(--color-surface);
-        color: var(--color-text);
-        font-size: 0.75rem;
-        cursor: pointer;
-      }
-
-      .btn-sm:hover {
-        background: var(--color-primary-soft);
-      }
-
-      .btn-danger {
-        border-color: var(--color-danger);
-        color: var(--color-danger);
-      }
-
-      .btn-danger:hover {
-        background: #fef2f2;
-      }
-
-      .empty-state {
-        text-align: center;
-        padding: 2rem;
-        color: var(--color-muted);
-      }
-
-      .memo-cell {
-        max-width: 200px;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-      }
-    `,
-  ],
   template: `
-    <div class="table-scroll">
-      <table>
+    <div class="overflow-x-auto">
+      <table class="table table-zebra table-sm">
         <thead>
           <tr>
             <th>日付</th>
@@ -146,30 +23,36 @@ import { ExpenseRecord } from '../../data/expense-supabase.service';
         <tbody>
           @for (expense of expenses; track expense.id) {
             <tr [attr.data-testid]="'expense-row-' + expense.id">
-              <td class="col-date">
+              <td class="whitespace-nowrap">
                 {{ expense.date | date: 'M/d (EEE)' : '' : 'ja-JP' }}
               </td>
-              <td class="col-destination">{{ expense.destination }}</td>
-              <td class="col-route">{{ expense.payerDetail }}</td>
-              <td class="col-trip">
+              <td class="font-medium">{{ expense.destination }}</td>
+              <td>{{ expense.payerDetail }}</td>
+              <td class="text-center">
                 <span
-                  class="badge"
-                  [class.badge-round]="expense.isRoundTrip"
-                  [class.badge-oneway]="!expense.isRoundTrip"
+                  class="badge badge-sm"
+                  [class]="expense.isRoundTrip ? 'badge-info' : 'badge-success'"
                 >
                   {{ expense.isRoundTrip ? '往復' : '片道' }}
                 </span>
               </td>
               <td>{{ expense.category || '-' }}</td>
               <td>{{ expense.taxType || '-' }}</td>
-              <td class="memo-cell" [title]="expense.memo || ''">
+              <td class="max-w-[200px] truncate" [title]="expense.memo || ''">
                 {{ expense.memo || '-' }}
               </td>
-              <td class="col-actions">
-                <button class="btn-sm" (click)="editClick.emit(expense.id)">編集</button>
-                <button class="btn-sm btn-danger" (click)="deleteClick.emit(expense.id)">
-                  削除
-                </button>
+              <td class="whitespace-nowrap">
+                <div class="flex gap-1">
+                  <button class="btn btn-ghost btn-xs" (click)="editClick.emit(expense.id)">
+                    編集
+                  </button>
+                  <button
+                    class="btn btn-error btn-xs btn-outline"
+                    (click)="deleteClick.emit(expense.id)"
+                  >
+                    削除
+                  </button>
+                </div>
               </td>
             </tr>
           }
@@ -177,7 +60,7 @@ import { ExpenseRecord } from '../../data/expense-supabase.service';
       </table>
 
       @if (expenses.length === 0) {
-        <p class="empty-state">該当データなし</p>
+        <p class="text-center py-8 opacity-60">該当データなし</p>
       }
     </div>
   `,

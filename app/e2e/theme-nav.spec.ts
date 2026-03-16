@@ -5,16 +5,15 @@ import { expect, test } from '@playwright/test';
 
 test.describe('テーマ切替', () => {
   test('ログイン画面でダークテーマに切替できる', async ({ page }) => {
-    // Navigate to login page (unauthenticated users are redirected here)
     await page.goto('/login');
     await expect(page.locator('h1')).toContainText('経費精算');
 
-    // ダークテーマに切替
-    await page.getByRole('button', { name: 'ダークテーマ' }).click();
+    // ダークテーマに切替 — click the swap label
+    await page.locator('.swap').click();
     await expect(page.locator('body')).toHaveClass(/theme-dark/);
 
     // ライトテーマに戻す
-    await page.getByRole('button', { name: 'ライトテーマ' }).click();
+    await page.locator('.swap').click();
     await expect(page.locator('body')).not.toHaveClass(/theme-dark/);
   });
 
@@ -23,7 +22,7 @@ test.describe('テーマ切替', () => {
     await expect(page.locator('h1')).toContainText('経費一覧');
 
     // ダークテーマに切替
-    await page.getByRole('button', { name: 'ダークテーマ' }).click();
+    await page.locator('.swap').click();
     await expect(page.locator('body')).toHaveClass(/theme-dark/);
 
     // ページリロード
@@ -31,7 +30,7 @@ test.describe('テーマ切替', () => {
     await expect(page.locator('body')).toHaveClass(/theme-dark/);
 
     // ライトに戻す（クリーンアップ）
-    await page.getByRole('button', { name: 'ライトテーマ' }).click();
+    await page.locator('.swap').click();
   });
 });
 

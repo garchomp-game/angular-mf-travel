@@ -5,28 +5,42 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
   selector: 'app-bottom-nav',
   imports: [RouterLink, RouterLinkActive],
   template: `
-    <!-- Floating Pill Navigation -->
-    <div class="fixed bottom-6 left-0 right-0 flex justify-center pointer-events-none z-50">
-      <nav
-        class="flex gap-2 p-1.5 pointer-events-auto border border-(--color-glass-border) rounded-full shadow-2xl glass-panel"
-        aria-label="メインナビゲーション"
-      >
-        <a
-          routerLink="/list"
-          routerLinkActive="bg-(--color-primary) text-white font-medium shadow-md"
-          class="flex items-center justify-center w-24 py-2.5 rounded-full no-underline text-(--color-text) transition-all duration-300"
-          >💳 一覧</a
+    <div class="dock">
+      <a routerLink="/list" routerLinkActive="dock-active">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          class="h-5 w-5"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
         >
-        <a
-          routerLink="/entry"
-          routerLinkActive="bg-(--color-primary) text-white font-medium shadow-md"
-          class="flex items-center justify-center w-24 py-2.5 rounded-full no-underline text-(--color-text) transition-all duration-300"
-          >✏️ 入力</a
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M4 6h16M4 10h16M4 14h16M4 18h16"
+          />
+        </svg>
+        <span class="dock-label">一覧</span>
+      </a>
+      <a routerLink="/entry" routerLinkActive="dock-active">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          class="h-5 w-5"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
         >
-      </nav>
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+          />
+        </svg>
+        <span class="dock-label">入力</span>
+      </a>
     </div>
-    <!-- Add padding to bottom so content isn't hidden behind floating nav -->
-    <div class="h-20"></div>
   `,
 })
 export class BottomNavComponent {}

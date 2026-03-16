@@ -36,15 +36,16 @@ test.describe('経費入力ページ', () => {
   test('詳細パネルの開閉', async ({ page }) => {
     await page.goto('/entry');
 
-    // 初期: 閉じている
+    // 初期: 閉じている (daisyUI collapse)
     await expect(page.locator('#expense-details-panel')).toBeHidden();
 
-    // 開く
-    await page.getByRole('button', { name: '詳細項目を開く' }).click();
+    // 開く — click the collapse checkbox
+    const collapseCheckbox = page.locator('.collapse input[type="checkbox"]');
+    await collapseCheckbox.check({ force: true });
     await expect(page.locator('#expense-details-panel')).toBeVisible();
 
     // 閉じる
-    await page.getByRole('button', { name: '詳細項目を閉じる' }).click();
+    await collapseCheckbox.uncheck({ force: true });
     await expect(page.locator('#expense-details-panel')).toBeHidden();
   });
 
@@ -56,7 +57,8 @@ test.describe('経費入力ページ', () => {
     await page.getByLabel('支払先・内容 *').fill('新幹線やまびこ');
     await page.getByLabel('往復').check();
 
-    await page.getByRole('button', { name: '詳細項目を開く' }).click();
+    // Open details collapse
+    await page.locator('.collapse input[type="checkbox"]').check({ force: true });
     await page.getByLabel('経費科目').fill('旅費交通費');
     await page.getByLabel('メモ').fill('定例報告');
 

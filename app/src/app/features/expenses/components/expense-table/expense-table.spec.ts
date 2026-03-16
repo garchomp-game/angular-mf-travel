@@ -64,7 +64,7 @@ describe('ExpenseTableComponent', () => {
     const fixture = TestBed.createComponent(ExpenseTableComponent);
     fixture.componentInstance.expenses = [mockExpenses[0]];
     fixture.detectChanges();
-    const badge = fixture.nativeElement.querySelector('.badge-round');
+    const badge = fixture.nativeElement.querySelector('.badge-info');
     expect(badge).toBeTruthy();
     expect(badge.textContent.trim()).toBe('往復');
   });
@@ -73,7 +73,7 @@ describe('ExpenseTableComponent', () => {
     const fixture = TestBed.createComponent(ExpenseTableComponent);
     fixture.componentInstance.expenses = [mockExpenses[1]];
     fixture.detectChanges();
-    const badge = fixture.nativeElement.querySelector('.badge-oneway');
+    const badge = fixture.nativeElement.querySelector('.badge-success');
     expect(badge).toBeTruthy();
     expect(badge.textContent.trim()).toBe('片道');
   });
@@ -84,7 +84,7 @@ describe('ExpenseTableComponent', () => {
     fixture.detectChanges();
 
     const spy = vi.spyOn(fixture.componentInstance.editClick, 'emit');
-    const editBtn = fixture.nativeElement.querySelector('.btn-sm');
+    const editBtn = fixture.nativeElement.querySelector('.btn-ghost') as HTMLButtonElement;
     editBtn.click();
     expect(spy).toHaveBeenCalledWith('1');
   });

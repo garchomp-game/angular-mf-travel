@@ -6,14 +6,14 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
   selector: 'app-search-box',
   imports: [ReactiveFormsModule],
   template: `
-    <label class="flex flex-col gap-2">
-      <span class="text-sm font-medium text-(--color-muted) tracking-wide">検索</span>
+    <label class="floating-label">
+      <span>検索</span>
       <input
         type="search"
         [formControl]="searchControl"
         placeholder="訪問先・内容で検索"
         aria-label="経費検索"
-        class="w-full rounded-md px-4 py-3 placeholder:text-(--color-muted)/60"
+        class="input input-bordered w-full"
       />
     </label>
   `,

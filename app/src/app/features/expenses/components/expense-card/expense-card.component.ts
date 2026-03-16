@@ -6,30 +6,25 @@ import { ExpenseRecord } from '../../data/expense-supabase.service';
   selector: 'app-expense-card',
   imports: [DatePipe, NgIf],
   template: `
-    <article class="p-5 glass-panel transition-all hover:scale-[1.01] hover:shadow-lg">
-      <header class="flex justify-between items-center mb-3">
-        <p class="m-0 text-(--color-muted) font-mono text-sm">
-          {{ expense.date | date: 'M/d (EEE)' : '' : 'ja-JP' }}
-        </p>
-        <span
-          class="px-2.5 py-1 rounded-full text-xs font-bold tracking-wider uppercase border"
-          [class]="
-            expense.isRoundTrip
-              ? 'bg-blue-500/10 text-blue-400 border-blue-500/20'
-              : 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
-          "
-        >
-          {{ expense.isRoundTrip ? '往復' : '片道' }}
-        </span>
-      </header>
-      <h3 class="m-0 mb-1.5 text-lg font-bold">{{ expense.destination }}</h3>
-      <p class="m-0 text-(--color-muted) mb-2">{{ expense.payerDetail }}</p>
-      <small
-        *ngIf="expense.category"
-        class="inline-block px-2 py-0.5 rounded-md bg-black/20 text-(--color-muted) border border-(--color-border) text-xs"
-      >
-        {{ expense.category }}
-      </small>
+    <article class="card bg-base-200 shadow-sm hover:shadow-md transition-shadow">
+      <div class="card-body p-4">
+        <header class="flex justify-between items-center">
+          <p class="m-0 text-sm opacity-60 font-mono">
+            {{ expense.date | date: 'M/d (EEE)' : '' : 'ja-JP' }}
+          </p>
+          <span
+            class="badge badge-sm"
+            [class]="expense.isRoundTrip ? 'badge-info' : 'badge-success'"
+          >
+            {{ expense.isRoundTrip ? '往復' : '片道' }}
+          </span>
+        </header>
+        <h3 class="card-title text-base">{{ expense.destination }}</h3>
+        <p class="m-0 text-sm opacity-70">{{ expense.payerDetail }}</p>
+        <small *ngIf="expense.category" class="badge badge-ghost badge-xs mt-1">
+          {{ expense.category }}
+        </small>
+      </div>
     </article>
   `,
 })

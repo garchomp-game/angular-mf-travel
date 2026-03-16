@@ -12,6 +12,7 @@ describe('ThemeToggleComponent', () => {
   afterEach(() => {
     localStorage.clear();
     document.body.classList.remove('theme-dark');
+    document.documentElement.removeAttribute('data-theme');
   });
 
   it('should create', () => {
@@ -24,20 +25,22 @@ describe('ThemeToggleComponent', () => {
     const fixture = TestBed.createComponent(ThemeToggleComponent);
     fixture.detectChanges();
     expect(fixture.componentInstance.isDark).toBe(false);
-    expect(fixture.nativeElement.textContent).toContain('ダークテーマ');
+    // Now uses SVG swap icons instead of text
+    const checkbox = fixture.nativeElement.querySelector(
+      'input[type="checkbox"]',
+    ) as HTMLInputElement;
+    expect(checkbox.checked).toBe(false);
   });
 
   it('should toggle to dark theme', () => {
     const fixture = TestBed.createComponent(ThemeToggleComponent);
-    fixture.detectChanges();
+    fixture.autoDetectChanges();
 
-    const button = fixture.nativeElement.querySelector('button') as HTMLButtonElement;
-    button.click();
-    fixture.detectChanges();
+    fixture.componentInstance.toggleTheme();
 
     expect(fixture.componentInstance.isDark).toBe(true);
-    expect(fixture.nativeElement.textContent).toContain('ライトテーマ');
     expect(document.body.classList.contains('theme-dark')).toBe(true);
+    expect(document.documentElement.getAttribute('data-theme')).toBe('night');
   });
 
   it('should persist theme preference', () => {

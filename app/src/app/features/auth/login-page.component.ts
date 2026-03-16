@@ -9,75 +9,67 @@ import { ThemeToggleComponent } from '../expenses/components/theme-toggle/theme-
   selector: 'app-login-page',
   imports: [CommonModule, ReactiveFormsModule, ThemeToggleComponent],
   template: `
-    <main class="min-h-dvh flex items-center justify-center bg-(--color-bg) p-4">
-      <div class="w-full max-w-md glass-panel p-8">
-        <div class="flex items-center justify-between mb-6">
-          <h1 class="text-2xl font-bold m-0">経費精算</h1>
-          <app-theme-toggle />
+    <main class="min-h-dvh flex items-center justify-center p-4">
+      <div class="card bg-base-200 shadow-xl w-full max-w-md">
+        <div class="card-body">
+          <div class="flex items-center justify-between mb-2">
+            <h1 class="card-title text-2xl">経費精算</h1>
+            <app-theme-toggle />
+          </div>
+
+          <!-- Tab switcher -->
+          <div role="tablist" class="tabs tabs-box mb-4">
+            <button
+              type="button"
+              role="tab"
+              (click)="isSignUp = false"
+              [class.tab-active]="!isSignUp"
+              class="tab"
+            >
+              ログイン
+            </button>
+            <button
+              type="button"
+              role="tab"
+              (click)="isSignUp = true"
+              [class.tab-active]="isSignUp"
+              class="tab"
+            >
+              新規登録
+            </button>
+          </div>
+
+          <form [formGroup]="loginForm" (ngSubmit)="submit()" class="grid gap-4">
+            <label class="floating-label">
+              <span>メールアドレス</span>
+              <input
+                type="email"
+                formControlName="email"
+                placeholder="user@example.com"
+                autocomplete="email"
+                class="input input-bordered w-full"
+              />
+            </label>
+
+            <label class="floating-label">
+              <span>パスワード</span>
+              <input
+                type="password"
+                formControlName="password"
+                placeholder="6文字以上"
+                autocomplete="current-password"
+                class="input input-bordered w-full"
+              />
+            </label>
+
+            <p *ngIf="errorMessage" class="text-error text-sm m-0">{{ errorMessage }}</p>
+            <p *ngIf="successMessage" class="text-success text-sm m-0">{{ successMessage }}</p>
+
+            <button type="submit" [disabled]="loading" class="btn btn-primary w-full">
+              {{ loading ? '処理中...' : isSignUp ? '登録' : 'ログイン' }}
+            </button>
+          </form>
         </div>
-
-        <!-- Tab switcher -->
-        <div
-          class="grid grid-cols-2 mb-6 border border-(--color-border) rounded-lg overflow-hidden"
-        >
-          <button
-            type="button"
-            (click)="isSignUp = false"
-            [class]="
-              isSignUp
-                ? 'py-2 text-(--color-muted) bg-(--color-surface)'
-                : 'py-2 bg-(--color-primary-soft) text-(--color-primary) font-bold'
-            "
-          >
-            ログイン
-          </button>
-          <button
-            type="button"
-            (click)="isSignUp = true"
-            [class]="
-              !isSignUp
-                ? 'py-2 text-(--color-muted) bg-(--color-surface)'
-                : 'py-2 bg-(--color-primary-soft) text-(--color-primary) font-bold'
-            "
-          >
-            新規登録
-          </button>
-        </div>
-
-        <form [formGroup]="loginForm" (ngSubmit)="submit()" class="grid gap-4">
-          <label class="grid gap-1">
-            <span class="text-sm text-(--color-muted)">メールアドレス</span>
-            <input
-              type="email"
-              formControlName="email"
-              placeholder="user@example.com"
-              autocomplete="email"
-              class="border border-(--color-border) rounded-md px-3 py-2 bg-(--color-bg) text-(--color-text)"
-            />
-          </label>
-
-          <label class="grid gap-1">
-            <span class="text-sm text-(--color-muted)">パスワード</span>
-            <input
-              type="password"
-              formControlName="password"
-              placeholder="6文字以上"
-              autocomplete="current-password"
-              class="border border-(--color-border) rounded-md px-3 py-2 bg-(--color-bg) text-(--color-text)"
-            />
-          </label>
-
-          <p *ngIf="errorMessage" class="text-(--color-danger) text-sm m-0">{{ errorMessage }}</p>
-          <p *ngIf="successMessage" class="text-green-600 text-sm m-0">{{ successMessage }}</p>
-
-          <button
-            type="submit"
-            [disabled]="loading"
-            class="action-btn rounded-md py-3 bg-(--color-primary) text-white border-none cursor-pointer disabled:opacity-50 font-bold tracking-wider shadow-md"
-          >
-            {{ loading ? '処理中...' : isSignUp ? '登録' : 'ログイン' }}
-          </button>
-        </form>
       </div>
     </main>
   `,

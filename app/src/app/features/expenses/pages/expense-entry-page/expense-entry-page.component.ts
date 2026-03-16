@@ -21,121 +21,107 @@ const DETAIL_PANEL_STORAGE_KEY = 'expense-entry-details-expanded';
   ],
   template: `
     <main class="max-w-[720px] mx-auto p-4 grid gap-4">
-      <header class="flex items-center justify-between">
-        <h1>{{ editId ? '経費編集' : '経費入力' }}</h1>
-        <div class="flex items-center gap-2">
-          <app-theme-toggle />
-          <button
-            type="button"
-            (click)="logout()"
-            class="action-btn border border-(--color-border) rounded-full bg-black/10 backdrop-blur-md text-(--color-text) px-4 py-2 text-sm shadow-sm"
-          >
-            ログアウト
-          </button>
+      <div class="navbar bg-base-200 rounded-box shadow-sm">
+        <div class="navbar-start">
+          <h1 class="text-xl font-bold px-2">{{ editId ? '経費編集' : '経費入力' }}</h1>
         </div>
-      </header>
+        <div class="navbar-end gap-2">
+          <app-theme-toggle />
+          <button type="button" (click)="logout()" class="btn btn-ghost btn-sm">ログアウト</button>
+        </div>
+      </div>
 
       <app-section-card>
-        <form [formGroup]="expenseForm" (ngSubmit)="submit()" class="grid gap-3">
-          <label class="grid gap-2">
-            日付 *
-            <input
-              type="date"
-              formControlName="date"
-              class="border border-(--color-border) rounded-md px-3 py-2 bg-(--color-bg) text-(--color-text)"
-            />
+        <form [formGroup]="expenseForm" (ngSubmit)="submit()" class="grid gap-4">
+          <label class="floating-label">
+            <span>日付 *</span>
+            <input type="date" formControlName="date" class="input input-bordered w-full" />
           </label>
 
-          <label class="grid gap-2">
-            訪問先 *
+          <label class="floating-label">
+            <span>訪問先 *</span>
             <input
               type="text"
               formControlName="destination"
               placeholder="例: 大阪本社"
-              class="border border-(--color-border) rounded-md px-3 py-2 bg-(--color-bg) text-(--color-text)"
+              class="input input-bordered w-full"
             />
           </label>
 
-          <label class="grid gap-2">
-            支払先・内容 *
+          <label class="floating-label">
+            <span>支払先・内容 *</span>
             <input
               type="text"
               formControlName="payerDetail"
               placeholder="例: JR東海 / 新幹線"
-              class="border border-(--color-border) rounded-md px-3 py-2 bg-(--color-bg) text-(--color-text)"
+              class="input input-bordered w-full"
             />
           </label>
 
-          <label class="flex items-center gap-2 cursor-pointer select-none py-1">
+          <label class="label cursor-pointer justify-start gap-3">
             <input
               type="checkbox"
               formControlName="isRoundTrip"
-              class="w-5 h-5 accent-(--color-primary) cursor-pointer"
+              class="checkbox checkbox-primary"
             />
-            <span>往復</span>
+            <span class="label-text">往復</span>
           </label>
 
-          <button
-            type="button"
-            class="action-btn rounded-md py-3 bg-black/20 text-(--color-text) border border-(--color-border) cursor-pointer backdrop-blur-sm"
-            (click)="toggleDetails()"
-            [attr.aria-expanded]="detailsExpanded"
-            aria-controls="expense-details-panel"
-          >
-            {{ detailsExpanded ? '詳細項目を閉じる' : '詳細項目を開く' }}
-          </button>
+          <!-- 詳細項目 collapse -->
+          <div class="collapse collapse-arrow bg-base-300 rounded-box">
+            <input
+              type="checkbox"
+              [checked]="detailsExpanded"
+              (change)="toggleDetails()"
+              aria-controls="expense-details-panel"
+            />
+            <div class="collapse-title font-medium">詳細項目</div>
+            <div class="collapse-content" id="expense-details-panel">
+              <div class="grid gap-3 pt-2">
+                <label class="floating-label">
+                  <span>経費科目</span>
+                  <input
+                    type="text"
+                    formControlName="category"
+                    class="input input-bordered w-full"
+                  />
+                </label>
+                <label class="floating-label">
+                  <span>税区分</span>
+                  <input
+                    type="text"
+                    formControlName="taxType"
+                    class="input input-bordered w-full"
+                  />
+                </label>
+                <label class="floating-label">
+                  <span>事前申請番号</span>
+                  <input
+                    type="text"
+                    formControlName="preApprovalNumber"
+                    class="input input-bordered w-full"
+                  />
+                </label>
+                <label class="floating-label">
+                  <span>メモ</span>
+                  <textarea
+                    rows="4"
+                    formControlName="memo"
+                    class="textarea textarea-bordered w-full"
+                  ></textarea>
+                </label>
+              </div>
+            </div>
+          </div>
 
-          <section
-            id="expense-details-panel"
-            class="grid gap-3 p-4 rounded-md border border-(--color-glass-border) bg-black/10 backdrop-blur-md"
-            [hidden]="!detailsExpanded"
-          >
-            <label class="grid gap-2">
-              経費科目
-              <input
-                type="text"
-                formControlName="category"
-                class="border border-(--color-border) rounded-md px-3 py-2 bg-(--color-bg) text-(--color-text)"
-              />
-            </label>
-            <label class="grid gap-2">
-              税区分
-              <input
-                type="text"
-                formControlName="taxType"
-                class="border border-(--color-border) rounded-md px-3 py-2 bg-(--color-bg) text-(--color-text)"
-              />
-            </label>
-            <label class="grid gap-2">
-              事前申請番号
-              <input
-                type="text"
-                formControlName="preApprovalNumber"
-                class="border border-(--color-border) rounded-md px-3 py-2 bg-(--color-bg) text-(--color-text)"
-              />
-            </label>
-            <label class="grid gap-2">
-              メモ
-              <textarea
-                rows="4"
-                formControlName="memo"
-                class="border border-(--color-border) rounded-md px-3 py-2 bg-(--color-bg) text-(--color-text)"
-              ></textarea>
-            </label>
-          </section>
-
-          <p class="text-(--color-danger) m-0" *ngIf="expenseForm.invalid && expenseForm.touched">
+          <p class="text-error m-0" *ngIf="expenseForm.invalid && expenseForm.touched">
             必須項目を入力してください。
           </p>
-          <p class="text-(--color-danger) m-0" *ngIf="errorMessage">
+          <p class="text-error m-0" *ngIf="errorMessage">
             {{ errorMessage }}
           </p>
 
-          <button
-            type="submit"
-            [disabled]="saving"
-            class="action-btn rounded-md py-4 bg-(--color-primary) text-white border-none cursor-pointer disabled:opacity-50 font-bold tracking-wider shadow-lg text-lg mt-2"
-          >
+          <button type="submit" [disabled]="saving" class="btn btn-primary btn-lg w-full">
             {{ saving ? '保存中...' : editId ? '更新' : '保存' }}
           </button>
         </form>

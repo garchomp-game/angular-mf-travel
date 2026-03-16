@@ -41,14 +41,14 @@ test('signup → login → list ページ表示まで', async ({ page }) => {
   const email = `test-${Date.now()}@example.com`;
 
   // 新規登録タブ切替
-  await page.getByRole('button', { name: '新規登録' }).click();
+  await page.getByRole('tab', { name: '新規登録' }).click();
 
   // フォーム入力
   await page.getByPlaceholder('user@example.com').fill(email);
   await page.getByPlaceholder('6文字以上').fill('password123');
 
   // 登録ボタンクリック
-  await page.getByRole('button', { name: '登録', exact: true }).click();
+  await page.getByRole('button', { name: '登録' }).click();
 
   // 「処理中...」が消えるまで待つ (NgZone.run のテスト)
   await expect(page.getByRole('button', { name: '処理中...' })).toBeHidden({ timeout: 10000 });

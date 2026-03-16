@@ -29,10 +29,10 @@ test.describe('認証フロー', () => {
     await page.goto('/login');
 
     // 新規登録
-    await page.getByRole('button', { name: '新規登録' }).click();
+    await page.getByRole('tab', { name: '新規登録' }).click();
     await page.getByPlaceholder('user@example.com').fill(email);
     await page.getByPlaceholder('6文字以上').fill('testpass123');
-    await page.getByRole('button', { name: '登録', exact: true }).click();
+    await page.getByRole('button', { name: '登録' }).click();
 
     await expect(page.getByText('登録が完了しました')).toBeVisible({ timeout: 10000 });
 

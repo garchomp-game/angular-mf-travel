@@ -27,19 +27,15 @@ const VIEW_MODE_KEY = 'expense-list-view-mode';
   ],
   template: `
     <main class="max-w-[720px] mx-auto p-4 grid gap-4">
-      <header class="flex items-center justify-between">
-        <h1>経費一覧</h1>
-        <div class="flex items-center gap-2">
-          <app-theme-toggle />
-          <button
-            type="button"
-            (click)="logout()"
-            class="action-btn border border-(--color-border) rounded-full bg-black/10 backdrop-blur-md text-(--color-text) px-4 py-2 text-sm shadow-sm"
-          >
-            ログアウト
-          </button>
+      <div class="navbar bg-base-200 rounded-box shadow-sm">
+        <div class="navbar-start">
+          <h1 class="text-xl font-bold px-2">経費一覧</h1>
         </div>
-      </header>
+        <div class="navbar-end gap-2">
+          <app-theme-toggle />
+          <button type="button" (click)="logout()" class="btn btn-ghost btn-sm">ログアウト</button>
+        </div>
+      </div>
 
       <app-section-card>
         <app-month-switcher
@@ -55,7 +51,7 @@ const VIEW_MODE_KEY = 'expense-list-view-mode';
           <button
             type="button"
             (click)="toggleViewMode()"
-            class="action-btn border border-(--color-border) rounded-md bg-black/20 text-(--color-text) px-4 py-2 text-sm whitespace-nowrap backdrop-blur-sm"
+            class="btn btn-ghost btn-sm"
             [title]="viewMode === 'card' ? 'テーブル表示に切替' : 'カード表示に切替'"
           >
             {{ viewMode === 'card' ? '📋 テーブル' : '📇 カード' }}
@@ -63,12 +59,12 @@ const VIEW_MODE_KEY = 'expense-list-view-mode';
         </div>
       </app-section-card>
 
-      <p *ngIf="notice" class="text-(--color-primary) font-medium">
-        {{ notice }}
-      </p>
+      <div *ngIf="notice" class="alert alert-info">
+        <span>{{ notice }}</span>
+      </div>
 
       @if (loading) {
-        <p class="text-(--color-muted) text-center py-8">読み込み中...</p>
+        <p class="text-center py-8 opacity-60">読み込み中...</p>
       } @else {
         @if (viewMode === 'table') {
           <app-section-card>
@@ -83,18 +79,14 @@ const VIEW_MODE_KEY = 'expense-list-view-mode';
             @for (expense of filteredExpenses; track expense.id) {
               <div [attr.data-testid]="'expense-item-' + expense.id">
                 <app-expense-card [expense]="expense" />
-                <div class="flex gap-2 mt-1">
-                  <button
-                    type="button"
-                    (click)="edit(expense.id)"
-                    class="action-btn border border-(--color-border) rounded-md bg-black/20 text-(--color-text) px-4 py-1.5 text-sm backdrop-blur-sm"
-                  >
+                <div class="flex gap-2 mt-2">
+                  <button type="button" (click)="edit(expense.id)" class="btn btn-ghost btn-xs">
                     編集
                   </button>
                   <button
                     type="button"
                     (click)="remove(expense.id)"
-                    class="action-btn border border-(--color-danger) rounded-md bg-(--color-danger)/10 text-(--color-danger) px-4 py-1.5 text-sm backdrop-blur-sm"
+                    class="btn btn-error btn-xs btn-outline"
                   >
                     削除
                   </button>
@@ -103,7 +95,7 @@ const VIEW_MODE_KEY = 'expense-list-view-mode';
             }
 
             @if (filteredExpenses.length === 0) {
-              <p class="text-(--color-muted) text-center">該当データなし</p>
+              <p class="text-center opacity-60">該当データなし</p>
             }
           </div>
         }
