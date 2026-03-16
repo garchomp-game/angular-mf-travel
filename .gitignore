@@ -1,2 +1,2 @@
-# Reference repositories (cloned for LLM/AI context)
-/reference/
+node_modules/
+bun.lock
