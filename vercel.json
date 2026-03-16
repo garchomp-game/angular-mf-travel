@@ -1,9 +1,15 @@
 {
+  "framework": null,
   "installCommand": "bun install && cd app && bun install && cd ../server && bun install",
-  "buildCommand": "cd app && bun run build",
+  "buildCommand": "npx esbuild server/src/index.ts --bundle --platform=node --format=cjs --outfile=server/dist/index.cjs --external:@libsql/client --external:bcryptjs && cd app && bun run build",
   "outputDirectory": "app/dist/app/browser",
+  "functions": {
+    "api/index.js": {
+      "includeFiles": "server/dist/**"
+    }
+  },
   "rewrites": [
-    { "source": "/api/:path(.*)", "destination": "/api/:path*" },
+    { "source": "/api/:path(.*)", "destination": "/api" },
     { "source": "/((?!api/).*)", "destination": "/index.html" }
   ]
 }
