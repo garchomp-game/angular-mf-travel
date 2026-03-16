@@ -5,7 +5,7 @@ import { jwt } from 'hono/jwt';
 import authRoutes from './routes/auth';
 import expenseRoutes from './routes/expenses';
 
-const JWT_SECRET = process.env.JWT_SECRET ?? 'dev-secret-change-me';
+const JWT_SECRET = (process.env.JWT_SECRET ?? 'dev-secret-change-me').trim();
 
 // Build allowed origins list
 const allowedOrigins = ['http://localhost:4200', 'http://localhost:5173'];

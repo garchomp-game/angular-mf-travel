@@ -7,7 +7,7 @@ import { eq } from 'drizzle-orm';
 import { db } from '../db';
 import { users } from '../db/schema';
 
-const JWT_SECRET = process.env.JWT_SECRET ?? 'dev-secret-change-me';
+const JWT_SECRET = (process.env.JWT_SECRET ?? 'dev-secret-change-me').trim();
 
 const authSchema = z.object({
   email: z.string().email(),
