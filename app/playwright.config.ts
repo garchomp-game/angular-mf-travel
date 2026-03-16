@@ -12,12 +12,20 @@ export default defineConfig({
     trace: 'retain-on-failure',
     video: 'retain-on-failure',
   },
-  webServer: {
-    command: 'bun run start --host 127.0.0.1 --port 4200',
-    port: 4200,
-    reuseExistingServer: true,
-    timeout: 120_000,
-  },
+  webServer: [
+    {
+      command: 'bun run --cwd ../server start',
+      port: 3000,
+      reuseExistingServer: true,
+      timeout: 30_000,
+    },
+    {
+      command: 'bun run start --host 127.0.0.1 --port 4200',
+      port: 4200,
+      reuseExistingServer: true,
+      timeout: 120_000,
+    },
+  ],
   projects: [
     {
       name: 'chromium',

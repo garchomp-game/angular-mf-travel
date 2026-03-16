@@ -1,7 +1,7 @@
 /**
  * ログアウト E2E テスト
  *
- * このテストはSupabaseのサーバーサイドセッションをinvalidateするため、
+ * このテストはlocalStorageのJWTトークンをクリアするため、
  * ファイル名を z- プレフィックスにしてアルファベット順で最後に実行される。
  */
 import { test, expect } from '@playwright/test';

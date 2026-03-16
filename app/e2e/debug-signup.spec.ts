@@ -22,7 +22,7 @@ test('signup → login → list ページ表示まで', async ({ page }) => {
   const networkLogs: string[] = [];
   page.on('response', (response) => {
     const url = response.url();
-    if (url.includes('54321')) {
+    if (url.includes('3000')) {
       networkLogs.push(`${response.status()} ${response.request().method()} ${url}`);
     }
   });
@@ -73,7 +73,7 @@ test('signup → login → list ページ表示まで', async ({ page }) => {
   console.log('\n=== Console Logs ===');
   consoleLogs.forEach((log) => console.log(log));
 
-  console.log('\n=== Network Logs (Supabase) ===');
+  console.log('\n=== Network Logs (API) ===');
   networkLogs.forEach((log) => console.log(log));
 
   // スクリーンショット
