@@ -40,7 +40,7 @@ describe('ThemeToggleComponent', () => {
 
     expect(fixture.componentInstance.isDark).toBe(true);
     expect(document.body.classList.contains('theme-dark')).toBe(true);
-    expect(document.documentElement.getAttribute('data-theme')).toBe('night');
+    expect(document.documentElement.getAttribute('data-theme')).toBe('dim');
   });
 
   it('should persist theme preference', () => {

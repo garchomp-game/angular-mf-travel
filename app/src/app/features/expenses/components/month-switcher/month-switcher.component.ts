@@ -8,7 +8,7 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
         type="button"
         (click)="previous.emit()"
         aria-label="前月"
-        class="btn btn-circle btn-ghost btn-sm"
+        class="btn btn-circle btn-outline btn-sm"
       >
         ◀
       </button>
@@ -17,7 +17,7 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
         type="button"
         (click)="next.emit()"
         aria-label="翌月"
-        class="btn btn-circle btn-ghost btn-sm"
+        class="btn btn-circle btn-outline btn-sm"
       >
         ▶
       </button>

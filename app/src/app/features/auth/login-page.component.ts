@@ -10,7 +10,7 @@ import { ThemeToggleComponent } from '../expenses/components/theme-toggle/theme-
   imports: [CommonModule, ReactiveFormsModule, ThemeToggleComponent],
   template: `
     <main class="min-h-dvh flex items-center justify-center p-4">
-      <div class="card bg-base-200 shadow-xl w-full max-w-md">
+      <div class="card card-border bg-base-200 shadow-xl w-full max-w-md">
         <div class="card-body">
           <div class="flex items-center justify-between mb-2">
             <h1 class="card-title text-2xl">経費精算</h1>

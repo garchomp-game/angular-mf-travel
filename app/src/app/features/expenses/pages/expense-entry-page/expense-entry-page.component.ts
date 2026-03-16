@@ -21,13 +21,15 @@ const DETAIL_PANEL_STORAGE_KEY = 'expense-entry-details-expanded';
   ],
   template: `
     <main class="max-w-[720px] mx-auto p-4 grid gap-4">
-      <div class="navbar bg-base-200 rounded-box shadow-sm">
+      <div class="navbar bg-base-200 rounded-box shadow-sm border border-base-300">
         <div class="navbar-start">
           <h1 class="text-xl font-bold px-2">{{ editId ? '経費編集' : '経費入力' }}</h1>
         </div>
         <div class="navbar-end gap-2">
           <app-theme-toggle />
-          <button type="button" (click)="logout()" class="btn btn-ghost btn-sm">ログアウト</button>
+          <button type="button" (click)="logout()" class="btn btn-outline btn-sm">
+            ログアウト
+          </button>
         </div>
       </div>
 

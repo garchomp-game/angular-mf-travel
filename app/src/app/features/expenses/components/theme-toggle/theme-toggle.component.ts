@@ -49,7 +49,7 @@ export class ThemeToggleComponent implements OnInit {
 
   private applyTheme(): void {
     const html = this.document.documentElement;
-    html.setAttribute('data-theme', this.isDark ? 'night' : 'corporate');
+    html.setAttribute('data-theme', this.isDark ? 'dim' : 'nord');
     this.document.body.classList.toggle('theme-dark', this.isDark);
   }
 }

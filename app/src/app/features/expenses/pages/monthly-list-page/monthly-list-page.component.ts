@@ -27,13 +27,15 @@ const VIEW_MODE_KEY = 'expense-list-view-mode';
   ],
   template: `
     <main class="max-w-[720px] mx-auto p-4 grid gap-4">
-      <div class="navbar bg-base-200 rounded-box shadow-sm">
+      <div class="navbar bg-base-200 rounded-box shadow-sm border border-base-300">
         <div class="navbar-start">
           <h1 class="text-xl font-bold px-2">経費一覧</h1>
         </div>
         <div class="navbar-end gap-2">
           <app-theme-toggle />
-          <button type="button" (click)="logout()" class="btn btn-ghost btn-sm">ログアウト</button>
+          <button type="button" (click)="logout()" class="btn btn-outline btn-sm">
+            ログアウト
+          </button>
         </div>
       </div>
 
@@ -51,7 +53,7 @@ const VIEW_MODE_KEY = 'expense-list-view-mode';
           <button
             type="button"
             (click)="toggleViewMode()"
-            class="btn btn-ghost btn-sm"
+            class="btn btn-outline btn-sm"
             [title]="viewMode === 'card' ? 'テーブル表示に切替' : 'カード表示に切替'"
           >
             {{ viewMode === 'card' ? '📋 テーブル' : '📇 カード' }}
@@ -78,19 +80,11 @@ const VIEW_MODE_KEY = 'expense-list-view-mode';
           <div class="grid gap-3">
             @for (expense of filteredExpenses; track expense.id) {
               <div [attr.data-testid]="'expense-item-' + expense.id">
-                <app-expense-card [expense]="expense" />
-                <div class="flex gap-2 mt-2">
-                  <button type="button" (click)="edit(expense.id)" class="btn btn-ghost btn-xs">
-                    編集
-                  </button>
-                  <button
-                    type="button"
-                    (click)="remove(expense.id)"
-                    class="btn btn-error btn-xs btn-outline"
-                  >
-                    削除
-                  </button>
-                </div>
+                <app-expense-card
+                  [expense]="expense"
+                  (editClick)="edit($event)"
+                  (deleteClick)="remove($event)"
+                />
               </div>
             }
 

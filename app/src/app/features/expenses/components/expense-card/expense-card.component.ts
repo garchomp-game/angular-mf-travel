@@ -1,12 +1,12 @@
 import { DatePipe, NgIf } from '@angular/common';
-import { Component, Input } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { ExpenseRecord } from '../../data/expense-supabase.service';
 
 @Component({
   selector: 'app-expense-card',
   imports: [DatePipe, NgIf],
   template: `
-    <article class="card bg-base-200 shadow-sm hover:shadow-md transition-shadow">
+    <article class="card card-border bg-base-200 shadow-sm hover:shadow-md transition-shadow">
       <div class="card-body p-4">
         <header class="flex justify-between items-center">
           <p class="m-0 text-sm opacity-60 font-mono">
@@ -24,10 +24,24 @@ import { ExpenseRecord } from '../../data/expense-supabase.service';
         <small *ngIf="expense.category" class="badge badge-ghost badge-xs mt-1">
           {{ expense.category }}
         </small>
+        <div class="card-actions justify-end mt-2">
+          <button type="button" (click)="editClick.emit(expense.id)" class="btn btn-outline btn-xs">
+            編集
+          </button>
+          <button
+            type="button"
+            (click)="deleteClick.emit(expense.id)"
+            class="btn btn-error btn-xs btn-outline"
+          >
+            削除
+          </button>
+        </div>
       </div>
     </article>
   `,
 })
 export class ExpenseCardComponent {
   @Input({ required: true }) expense!: ExpenseRecord;
+  @Output() readonly editClick = new EventEmitter<string>();
+  @Output() readonly deleteClick = new EventEmitter<string>();
 }
