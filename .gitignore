@@ -2,3 +2,4 @@ node_modules/
 bun.lock
 .vercel
 server/dist/
+api/index.js
