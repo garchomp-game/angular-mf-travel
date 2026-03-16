@@ -7,6 +7,7 @@ import localeJa from '@angular/common/locales/ja';
 import { LOCALE_ID } from '@angular/core';
 import { ExpenseSupabaseService } from '../../data/expense-supabase.service';
 import { AuthService } from '../../../../core/auth.service';
+import { ApiService } from '../../../../core/api.service';
 
 registerLocaleData(localeJa);
 
@@ -31,13 +32,23 @@ describe('MonthlyListPageComponent', () => {
     remove: vi.fn().mockResolvedValue(true),
   };
 
+  const mockApiService = {
+    token: 'test-token',
+    get isAuthenticated() {
+      return true;
+    },
+  };
+
   const mockAuthService = {
     signOut: vi.fn().mockResolvedValue(undefined),
-    currentUser: { id: 'user-1' },
+    currentUser: { id: 'user-1', email: 'test@example.com' },
     user$: {
       pipe: vi.fn().mockReturnValue({ subscribe: vi.fn() }),
     },
     isAuthenticated$: {
+      pipe: vi.fn().mockReturnValue({ subscribe: vi.fn() }),
+    },
+    ready$: {
       pipe: vi.fn().mockReturnValue({ subscribe: vi.fn() }),
     },
   };
@@ -58,6 +69,7 @@ describe('MonthlyListPageComponent', () => {
         { provide: LOCALE_ID, useValue: 'ja' },
         { provide: ExpenseSupabaseService, useValue: mockExpenseService },
         { provide: AuthService, useValue: mockAuthService },
+        { provide: ApiService, useValue: mockApiService },
       ],
     }).compileComponents();
   });

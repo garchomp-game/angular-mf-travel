@@ -4,6 +4,7 @@ import { provideRouter } from '@angular/router';
 import { LoggerModule, NgxLoggerLevel } from 'ngx-logger';
 import { ExpenseSupabaseService } from '../../data/expense-supabase.service';
 import { AuthService } from '../../../../core/auth.service';
+import { ApiService } from '../../../../core/api.service';
 
 describe('ExpenseEntryPageComponent', () => {
   const mockExpenseService = {
@@ -17,13 +18,23 @@ describe('ExpenseEntryPageComponent', () => {
     }),
   };
 
+  const mockApiService = {
+    token: null,
+    get isAuthenticated() {
+      return false;
+    },
+  };
+
   const mockAuthService = {
     signOut: vi.fn().mockResolvedValue(undefined),
-    currentUser: { id: 'user-1' },
+    currentUser: { id: 'user-1', email: 'test@example.com' },
     user$: {
       pipe: vi.fn().mockReturnValue({ subscribe: vi.fn() }),
     },
     isAuthenticated$: {
+      pipe: vi.fn().mockReturnValue({ subscribe: vi.fn() }),
+    },
+    ready$: {
       pipe: vi.fn().mockReturnValue({ subscribe: vi.fn() }),
     },
   };
@@ -43,6 +54,7 @@ describe('ExpenseEntryPageComponent', () => {
         provideRouter([]),
         { provide: ExpenseSupabaseService, useValue: mockExpenseService },
         { provide: AuthService, useValue: mockAuthService },
+        { provide: ApiService, useValue: mockApiService },
       ],
     }).compileComponents();
   });

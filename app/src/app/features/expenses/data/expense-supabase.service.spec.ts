@@ -1,17 +1,15 @@
 import { TestBed } from '@angular/core/testing';
 import { ExpenseSupabaseService } from './expense-supabase.service';
 import { LoggerModule, NgxLoggerLevel } from 'ngx-logger';
-import { AuthService } from '../../../core/auth.service';
+import { ApiService } from '../../../core/api.service';
 
 describe('ExpenseSupabaseService', () => {
-  const mockAuthService = {
-    currentUser: { id: 'user-1' },
-    user$: {
-      pipe: vi.fn().mockReturnValue({ subscribe: vi.fn() }),
-    },
-    isAuthenticated$: {
-      pipe: vi.fn().mockReturnValue({ subscribe: vi.fn() }),
-    },
+  const mockApiService = {
+    get: vi.fn().mockResolvedValue({ data: [] }),
+    post: vi.fn().mockResolvedValue({ data: { id: '1' } }),
+    put: vi.fn().mockResolvedValue({ data: { id: '1' } }),
+    delete: vi.fn().mockResolvedValue({ success: true }),
+    token: 'test-token',
   };
 
   beforeEach(() => {
@@ -22,7 +20,7 @@ describe('ExpenseSupabaseService', () => {
           disableConsoleLogging: true,
         }),
       ],
-      providers: [{ provide: AuthService, useValue: mockAuthService }],
+      providers: [{ provide: ApiService, useValue: mockApiService }],
     });
   });
 
@@ -31,16 +29,19 @@ describe('ExpenseSupabaseService', () => {
     expect(service).toBeTruthy();
   });
 
-  it('should return empty array when supabase is not configured', async () => {
+  it('should call API for listByMonth', async () => {
     const service = TestBed.inject(ExpenseSupabaseService);
-    // supabase is null in test env (no env vars), so this should return empty
     const result = await service.listByMonth('2026年03月');
     expect(Array.isArray(result)).toBe(true);
+    expect(mockApiService.get).toHaveBeenCalled();
   });
 
-  it('should return undefined when supabase is not configured', async () => {
+  it('should call API for findById', async () => {
+    mockApiService.get.mockResolvedValueOnce({
+      data: { id: '1', date: '2026-03-01' },
+    });
     const service = TestBed.inject(ExpenseSupabaseService);
-    const result = await service.findById('test-id');
-    expect(result).toBeUndefined();
+    const result = await service.findById('1');
+    expect(result).toBeDefined();
   });
 });
