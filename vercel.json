@@ -5,7 +5,6 @@
   "outputDirectory": "app/dist/app/browser",
   "functions": {
     "api/index.ts": {
-      "runtime": "@vercel/node@4",
       "includeFiles": "server/**"
     }
   },
