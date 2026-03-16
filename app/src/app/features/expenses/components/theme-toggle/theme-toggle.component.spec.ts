@@ -1,6 +1,5 @@
 import { TestBed } from '@angular/core/testing';
 import { ThemeToggleComponent } from './theme-toggle.component';
-import { DOCUMENT } from '@angular/common';
 
 describe('ThemeToggleComponent', () => {
   beforeEach(async () => {

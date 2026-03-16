@@ -53,9 +53,9 @@ const seedExpenses = [
 ];
 
 export default async function globalSetup(config: FullConfig): Promise<void> {
-  const supabaseUrl = process.env.SUPABASE_URL ?? 'http://127.0.0.1:54321';
-  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  const anonKey = process.env.SUPABASE_ANON_KEY;
+  const supabaseUrl = process.env['SUPABASE_URL'] ?? 'http://127.0.0.1:54321';
+  const serviceRoleKey = process.env['SUPABASE_SERVICE_ROLE_KEY'];
+  const anonKey = process.env['SUPABASE_ANON_KEY'];
 
   if (!serviceRoleKey) throw new Error('SUPABASE_SERVICE_ROLE_KEY env var is required for E2E setup');
   if (!anonKey) throw new Error('SUPABASE_ANON_KEY env var is required for E2E setup');

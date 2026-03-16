@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { supabase } from '../../../core/supabase.client';
+import { SUPABASE_CLIENT } from '../../../core/supabase.client';
 import { AuthService } from '../../../core/auth.service';
 import { LoggerService } from '../../../core/logger.service';
 
@@ -19,16 +19,17 @@ export type ExpenseDraft = Omit<ExpenseRecord, 'id'>;
 
 @Injectable({ providedIn: 'root' })
 export class ExpenseSupabaseService {
+  private readonly supabase = inject(SUPABASE_CLIENT);
   private readonly auth = inject(AuthService);
   private readonly logger = inject(LoggerService);
 
   async listByMonth(monthLabel: string): Promise<ExpenseRecord[]> {
-    if (!supabase) return [];
+    if (!this.supabase) return [];
 
     const range = this.toMonthRange(monthLabel);
     if (!range) return [];
 
-    const { data, error } = await supabase
+    const { data, error } = await this.supabase
       .from('expense_records')
       .select('*')
       .gte('travel_date', range.start)
@@ -44,9 +45,9 @@ export class ExpenseSupabaseService {
   }
 
   async findById(id: string): Promise<ExpenseRecord | undefined> {
-    if (!supabase) return undefined;
+    if (!this.supabase) return undefined;
 
-    const { data, error } = await supabase
+    const { data, error } = await this.supabase
       .from('expense_records')
       .select('*')
       .eq('id', id)
@@ -61,7 +62,7 @@ export class ExpenseSupabaseService {
   }
 
   async save(draft: ExpenseDraft, id?: string): Promise<ExpenseRecord | undefined> {
-    if (!supabase) return undefined;
+    if (!this.supabase) return undefined;
 
     const userId = this.auth.currentUser?.id;
     if (!userId) {
@@ -72,7 +73,7 @@ export class ExpenseSupabaseService {
     const dbRecord = this.toDb(draft, userId);
 
     if (id) {
-      const { data, error } = await supabase
+      const { data, error } = await this.supabase
         .from('expense_records')
         .update(dbRecord)
         .eq('id', id)
@@ -88,7 +89,7 @@ export class ExpenseSupabaseService {
       return data ? this.fromDb(data) : undefined;
     }
 
-    const { data, error } = await supabase
+    const { data, error } = await this.supabase
       .from('expense_records')
       .insert(dbRecord)
       .select()
@@ -104,9 +105,9 @@ export class ExpenseSupabaseService {
   }
 
   async remove(id: string): Promise<boolean> {
-    if (!supabase) return false;
+    if (!this.supabase) return false;
 
-    const { error } = await supabase
+    const { error } = await this.supabase
       .from('expense_records')
       .delete()
       .eq('id', id);

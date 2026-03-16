@@ -2,7 +2,7 @@ import { Injectable, inject, NgZone } from '@angular/core';
 import { Router } from '@angular/router';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { supabase } from './supabase.client';
+import { SUPABASE_CLIENT } from './supabase.client';
 import { LoggerService } from './logger.service';
 import type { User, AuthError } from '@supabase/supabase-js';
 
@@ -16,6 +16,7 @@ export class AuthService {
   private readonly logger = inject(LoggerService);
   private readonly router = inject(Router);
   private readonly zone = inject(NgZone);
+  private readonly supabase = inject(SUPABASE_CLIENT);
 
   private readonly userSubject = new BehaviorSubject<User | null>(null);
   private readonly readySubject = new BehaviorSubject<boolean>(false);
@@ -37,11 +38,11 @@ export class AuthService {
   }
 
   async signIn(email: string, password: string): Promise<AuthResult> {
-    if (!supabase) {
+    if (!this.supabase) {
       return { success: false, error: 'Supabase が設定されていません' };
     }
 
-    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+    const { data, error } = await this.supabase.auth.signInWithPassword({ email, password });
     if (error) {
       this.logger.warn('[Auth] ログイン失敗', { email, error: error.message });
       return { success: false, error: this.translateError(error) };
@@ -53,11 +54,11 @@ export class AuthService {
   }
 
   async signUp(email: string, password: string): Promise<AuthResult> {
-    if (!supabase) {
+    if (!this.supabase) {
       return { success: false, error: 'Supabase が設定されていません' };
     }
 
-    const { data, error } = await supabase.auth.signUp({ email, password });
+    const { data, error } = await this.supabase.auth.signUp({ email, password });
     if (error) {
       this.logger.warn('[Auth] 登録失敗', { email, error: error.message });
       return { success: false, error: this.translateError(error) };
@@ -69,9 +70,9 @@ export class AuthService {
   }
 
   async signOut(): Promise<void> {
-    if (!supabase) return;
+    if (!this.supabase) return;
 
-    await supabase.auth.signOut();
+    await this.supabase.auth.signOut();
     this.zone.run(() => {
       this.userSubject.next(null);
       this.logger.info('[Auth] ログアウト');
@@ -80,13 +81,13 @@ export class AuthService {
   }
 
   private initAuthState(): void {
-    if (!supabase) {
+    if (!this.supabase) {
       this.readySubject.next(true);
       return;
     }
 
     // Get initial session
-    supabase.auth.getSession().then(({ data }) => {
+    this.supabase.auth.getSession().then(({ data }) => {
       this.zone.run(() => {
         this.userSubject.next(data.session?.user ?? null);
         this.readySubject.next(true);
@@ -94,7 +95,7 @@ export class AuthService {
     });
 
     // Listen for auth state changes
-    supabase.auth.onAuthStateChange((_event, session) => {
+    this.supabase.auth.onAuthStateChange((_event, session) => {
       this.zone.run(() => {
         this.userSubject.next(session?.user ?? null);
         if (!this.readySubject.value) {
