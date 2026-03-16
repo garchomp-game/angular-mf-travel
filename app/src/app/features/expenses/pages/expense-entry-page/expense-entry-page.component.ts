@@ -28,7 +28,7 @@ const DETAIL_PANEL_STORAGE_KEY = 'expense-entry-details-expanded';
           <button
             type="button"
             (click)="logout()"
-            class="border border-(--color-border) rounded-md bg-(--color-surface) text-(--color-muted) px-3 py-2 text-sm"
+            class="action-btn border border-(--color-border) rounded-full bg-black/10 backdrop-blur-md text-(--color-text) px-4 py-2 text-sm shadow-sm"
           >
             ログアウト
           </button>
@@ -77,7 +77,7 @@ const DETAIL_PANEL_STORAGE_KEY = 'expense-entry-details-expanded';
 
           <button
             type="button"
-            class="rounded-md py-3 bg-(--color-primary) text-white border-none cursor-pointer"
+            class="action-btn rounded-md py-3 bg-black/20 text-(--color-text) border border-(--color-border) cursor-pointer backdrop-blur-sm"
             (click)="toggleDetails()"
             [attr.aria-expanded]="detailsExpanded"
             aria-controls="expense-details-panel"
@@ -87,7 +87,7 @@ const DETAIL_PANEL_STORAGE_KEY = 'expense-entry-details-expanded';
 
           <section
             id="expense-details-panel"
-            class="grid gap-3 p-3 rounded-md border border-dashed border-(--color-border) bg-(--color-primary-soft)"
+            class="grid gap-3 p-4 rounded-md border border-(--color-glass-border) bg-black/10 backdrop-blur-md"
             [hidden]="!detailsExpanded"
           >
             <label class="grid gap-2">
@@ -134,7 +134,7 @@ const DETAIL_PANEL_STORAGE_KEY = 'expense-entry-details-expanded';
           <button
             type="submit"
             [disabled]="saving"
-            class="rounded-md py-3 bg-(--color-primary) text-white border-none cursor-pointer disabled:opacity-50"
+            class="action-btn rounded-md py-4 bg-(--color-primary) text-white border-none cursor-pointer disabled:opacity-50 font-bold tracking-wider shadow-lg text-lg mt-2"
           >
             {{ saving ? '保存中...' : editId ? '更新' : '保存' }}
           </button>

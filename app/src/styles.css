@@ -1,19 +1,23 @@
 @import 'tailwindcss';
 
 @theme {
-  --color-bg: #f3f5f8;
-  --color-surface: #ffffff;
-  --color-text: #1c2430;
-  --color-muted: #5e6b7c;
-  --color-border: #d4dce6;
-  --color-primary: #1d4ed8;
-  --color-primary-soft: #dbe8ff;
-  --color-danger: #dc2626;
+  --color-bg: #f8fafc;
+  --color-surface: rgba(255, 255, 255, 0.7);
+  --color-text: #0f172a;
+  --color-muted: #64748b;
+  --color-border: rgba(15, 23, 42, 0.1);
+  --color-primary: #3b82f6;
+  --color-primary-soft: rgba(59, 130, 246, 0.15);
+  --color-danger: #ef4444;
 
-  --radius-sm: 0.4rem;
-  --radius-md: 0.7rem;
+  --color-glass-border: rgba(255, 255, 255, 0.4);
+  --color-glass-bg: rgba(255, 255, 255, 0.6);
+  --color-glass-highlight: rgba(255, 255, 255, 0.8);
+
+  --radius-sm: 0.5rem;
+  --radius-md: 0.75rem;
   --radius-lg: 1rem;
-  --radius-xl: 1.25rem;
+  --radius-xl: 1.5rem;
 
   --spacing-1: 0.25rem;
   --spacing-2: 0.5rem;
@@ -21,10 +25,11 @@
   --spacing-4: 1rem;
   --spacing-5: 1.5rem;
 
-  --shadow-sm: 0 2px 8px rgba(28, 36, 48, 0.08);
-  --shadow-md: 0 8px 24px rgba(28, 36, 48, 0.12);
+  --shadow-glass: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
 
-  --font-sans: 'Inter', 'Hiragino Kaku Gothic ProN', 'Yu Gothic', sans-serif;
+  --font-sans:
+    'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Hiragino Kaku Gothic ProN',
+    sans-serif;
 }
 
 body {
@@ -32,19 +37,84 @@ body {
   background: var(--color-bg);
   color: var(--color-text);
   font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 body.theme-dark {
-  --color-bg: #111827;
-  --color-surface: #1f2937;
-  --color-text: #f3f4f6;
-  --color-muted: #cbd5e1;
-  --color-border: #334155;
+  /* 深いミッドナイト〜オブシディアンの背景 */
+  --color-bg: #0b0f19;
+  --color-surface: rgba(17, 24, 39, 0.6);
+  --color-text: #f8fafc;
+  --color-muted: #94a3b8;
+  --color-border: rgba(255, 255, 255, 0.08);
   --color-primary: #60a5fa;
-  --color-primary-soft: rgba(96, 165, 250, 0.2);
+  --color-primary-soft: rgba(96, 165, 250, 0.15);
   --color-danger: #f87171;
+
+  --color-glass-border: rgba(255, 255, 255, 0.08);
+  --color-glass-bg: rgba(15, 23, 42, 0.5);
+  --color-glass-highlight: rgba(255, 255, 255, 0.05);
+
+  --shadow-glass: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
+  color-scheme: dark;
 }
 
 * {
   box-sizing: border-box;
+}
+
+/* Glassmorphism Utilities */
+.glass-panel {
+  background: var(--color-glass-bg);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--color-glass-border);
+  box-shadow: var(--shadow-glass);
+  border-radius: var(--radius-lg);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Subtle inner highlight for premium feel */
+.glass-panel::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--color-glass-highlight), transparent);
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+/* Base Form Elements */
+input,
+select,
+textarea {
+  background: rgba(0, 0, 0, 0.2) !important;
+  border: 1px solid var(--color-border) !important;
+  color: var(--color-text) !important;
+  backdrop-filter: blur(8px) !important;
+  transition: all 0.2s ease;
+}
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: var(--color-primary) !important;
+  outline: none;
+  box-shadow: 0 0 0 2px var(--color-primary-soft) !important;
+}
+
+/* リンクやボタンのマイクロアニメーション */
+.action-btn {
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.action-btn:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.1);
+}
+.action-btn:active {
+  transform: translateY(1px) scale(0.97);
 }

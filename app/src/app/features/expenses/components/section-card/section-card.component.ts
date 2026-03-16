@@ -5,8 +5,8 @@ import { Component, Input } from '@angular/core';
   selector: 'app-section-card',
   imports: [NgIf],
   template: `
-    <section class="p-4 rounded-lg bg-(--color-surface) shadow-sm border border-(--color-border)">
-      <h2 *ngIf="title" class="m-0 mb-3 text-base">{{ title }}</h2>
+    <section class="p-5 glass-panel">
+      <h2 *ngIf="title" class="m-0 mb-4 text-lg font-semibold tracking-wide">{{ title }}</h2>
       <ng-content />
     </section>
   `,

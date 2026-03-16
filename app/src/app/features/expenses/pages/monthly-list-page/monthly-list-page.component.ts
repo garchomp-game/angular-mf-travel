@@ -34,7 +34,7 @@ const VIEW_MODE_KEY = 'expense-list-view-mode';
           <button
             type="button"
             (click)="logout()"
-            class="border border-(--color-border) rounded-md bg-(--color-surface) text-(--color-muted) px-3 py-2 text-sm"
+            class="action-btn border border-(--color-border) rounded-full bg-black/10 backdrop-blur-md text-(--color-text) px-4 py-2 text-sm shadow-sm"
           >
             ログアウト
           </button>
@@ -55,7 +55,7 @@ const VIEW_MODE_KEY = 'expense-list-view-mode';
           <button
             type="button"
             (click)="toggleViewMode()"
-            class="border border-(--color-border) rounded-md bg-(--color-surface) text-(--color-text) px-3 py-2 text-sm whitespace-nowrap"
+            class="action-btn border border-(--color-border) rounded-md bg-black/20 text-(--color-text) px-4 py-2 text-sm whitespace-nowrap backdrop-blur-sm"
             [title]="viewMode === 'card' ? 'テーブル表示に切替' : 'カード表示に切替'"
           >
             {{ viewMode === 'card' ? '📋 テーブル' : '📇 カード' }}
@@ -87,14 +87,14 @@ const VIEW_MODE_KEY = 'expense-list-view-mode';
                   <button
                     type="button"
                     (click)="edit(expense.id)"
-                    class="border border-(--color-border) rounded-md bg-(--color-surface) text-(--color-text) px-3 py-1 text-sm"
+                    class="action-btn border border-(--color-border) rounded-md bg-black/20 text-(--color-text) px-4 py-1.5 text-sm backdrop-blur-sm"
                   >
                     編集
                   </button>
                   <button
                     type="button"
                     (click)="remove(expense.id)"
-                    class="border border-(--color-danger) rounded-md bg-(--color-surface) text-(--color-danger) px-3 py-1 text-sm"
+                    class="action-btn border border-(--color-danger) rounded-md bg-(--color-danger)/10 text-(--color-danger) px-4 py-1.5 text-sm backdrop-blur-sm"
                   >
                     削除
                   </button>

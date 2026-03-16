@@ -7,13 +7,13 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
   imports: [ReactiveFormsModule],
   template: `
     <label class="flex flex-col gap-2">
-      <span>検索</span>
+      <span class="text-sm font-medium text-(--color-muted) tracking-wide">検索</span>
       <input
         type="search"
         [formControl]="searchControl"
         placeholder="訪問先・内容で検索"
         aria-label="経費検索"
-        class="border border-(--color-border) rounded-md px-3 py-2 bg-(--color-surface) text-(--color-text)"
+        class="w-full rounded-md px-4 py-3 placeholder:text-(--color-muted)/60"
       />
     </label>
   `,

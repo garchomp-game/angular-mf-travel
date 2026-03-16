@@ -10,9 +10,7 @@ import { ThemeToggleComponent } from '../expenses/components/theme-toggle/theme-
   imports: [CommonModule, ReactiveFormsModule, ThemeToggleComponent],
   template: `
     <main class="min-h-dvh flex items-center justify-center bg-(--color-bg) p-4">
-      <div
-        class="w-full max-w-md bg-(--color-surface) rounded-xl shadow-md border border-(--color-border) p-6"
-      >
+      <div class="w-full max-w-md glass-panel p-8">
         <div class="flex items-center justify-between mb-6">
           <h1 class="text-2xl font-bold m-0">経費精算</h1>
           <app-theme-toggle />
@@ -75,7 +73,7 @@ import { ThemeToggleComponent } from '../expenses/components/theme-toggle/theme-
           <button
             type="submit"
             [disabled]="loading"
-            class="rounded-md py-3 bg-(--color-primary) text-white border-none cursor-pointer disabled:opacity-50"
+            class="action-btn rounded-md py-3 bg-(--color-primary) text-white border-none cursor-pointer disabled:opacity-50 font-bold tracking-wider shadow-md"
           >
             {{ loading ? '処理中...' : isSignUp ? '登録' : 'ログイン' }}
           </button>
