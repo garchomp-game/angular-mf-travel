@@ -1,9 +1,9 @@
-import { Hono } from "hono";
-import { zValidator } from "@hono/zod-validator";
-import { z } from "zod";
-import { eq, and, gte, lt, desc } from "drizzle-orm";
-import { db } from "../db";
-import { expenseRecords } from "../db/schema";
+import { Hono } from 'hono';
+import { zValidator } from '@hono/zod-validator';
+import { z } from 'zod';
+import { eq, and, gte, lt, desc } from 'drizzle-orm';
+import { db } from '../db';
+import { expenseRecords } from '../db/schema';
 
 type JwtPayload = { sub: string; email: string };
 
@@ -14,8 +14,8 @@ const expenseSchema = z.object({
   destination: z.string().min(1),
   payerDetail: z.string().min(1),
   isRoundTrip: z.boolean().default(false),
-  category: z.string().optional().default(""),
-  taxType: z.string().optional().default(""),
+  category: z.string().optional().default(''),
+  taxType: z.string().optional().default(''),
   preApprovalNumber: z.string().optional().nullable(),
   memo: z.string().optional().nullable(),
 });
@@ -35,9 +35,9 @@ function toRecord(row: typeof expenseRecords.$inferSelect) {
 }
 
 // List by month: GET /api/expenses?month=2026年03月
-expenses.get("/", async (c) => {
-  const userId = c.get("jwtPayload").sub;
-  const monthLabel = c.req.query("month") ?? "";
+expenses.get('/', async (c) => {
+  const userId = c.get('jwtPayload').sub;
+  const monthLabel = c.req.query('month') ?? '';
 
   const match = monthLabel.match(/(\d{4})年(\d{2})月/);
   if (!match) {
@@ -46,10 +46,10 @@ expenses.get("/", async (c) => {
 
   const year = Number(match[1]);
   const month = Number(match[2]);
-  const start = `${year}-${String(month).padStart(2, "0")}-01`;
+  const start = `${year}-${String(month).padStart(2, '0')}-01`;
   const nextMonth = month === 12 ? 1 : month + 1;
   const nextYear = month === 12 ? year + 1 : year;
-  const end = `${nextYear}-${String(nextMonth).padStart(2, "0")}-01`;
+  const end = `${nextYear}-${String(nextMonth).padStart(2, '0')}-01`;
 
   const rows = await db
     .select()
@@ -67,9 +67,9 @@ expenses.get("/", async (c) => {
 });
 
 // Get by ID: GET /api/expenses/:id
-expenses.get("/:id", async (c) => {
-  const userId = c.get("jwtPayload").sub;
-  const id = c.req.param("id");
+expenses.get('/:id', async (c) => {
+  const userId = c.get('jwtPayload').sub;
+  const id = c.req.param('id');
 
   const row = await db
     .select()
@@ -78,16 +78,16 @@ expenses.get("/:id", async (c) => {
     .get();
 
   if (!row) {
-    return c.json({ error: "Not found" }, 404);
+    return c.json({ error: 'Not found' }, 404);
   }
 
   return c.json({ data: toRecord(row) });
 });
 
 // Create: POST /api/expenses
-expenses.post("/", zValidator("json", expenseSchema), async (c) => {
-  const userId = c.get("jwtPayload").sub;
-  const body = c.req.valid("json");
+expenses.post('/', zValidator('json', expenseSchema), async (c) => {
+  const userId = c.get('jwtPayload').sub;
+  const body = c.req.valid('json');
 
   const row = await db
     .insert(expenseRecords)
@@ -97,8 +97,8 @@ expenses.post("/", zValidator("json", expenseSchema), async (c) => {
       visitTo: body.destination,
       routeText: body.payerDetail,
       isRoundTrip: body.isRoundTrip,
-      categoryCode: body.category ?? "",
-      taxCode: body.taxType ?? "",
+      categoryCode: body.category ?? '',
+      taxCode: body.taxType ?? '',
       preApprovalNo: body.preApprovalNumber ?? null,
       memo: body.memo ?? null,
     })
@@ -109,10 +109,10 @@ expenses.post("/", zValidator("json", expenseSchema), async (c) => {
 });
 
 // Update: PUT /api/expenses/:id
-expenses.put("/:id", zValidator("json", expenseSchema), async (c) => {
-  const userId = c.get("jwtPayload").sub;
-  const id = c.req.param("id");
-  const body = c.req.valid("json");
+expenses.put('/:id', zValidator('json', expenseSchema), async (c) => {
+  const userId = c.get('jwtPayload').sub;
+  const id = c.req.param('id');
+  const body = c.req.valid('json');
 
   const row = await db
     .update(expenseRecords)
@@ -121,8 +121,8 @@ expenses.put("/:id", zValidator("json", expenseSchema), async (c) => {
       visitTo: body.destination,
       routeText: body.payerDetail,
       isRoundTrip: body.isRoundTrip,
-      categoryCode: body.category ?? "",
-      taxCode: body.taxType ?? "",
+      categoryCode: body.category ?? '',
+      taxCode: body.taxType ?? '',
       preApprovalNo: body.preApprovalNumber ?? null,
       memo: body.memo ?? null,
     })
@@ -131,16 +131,16 @@ expenses.put("/:id", zValidator("json", expenseSchema), async (c) => {
     .get();
 
   if (!row) {
-    return c.json({ error: "Not found" }, 404);
+    return c.json({ error: 'Not found' }, 404);
   }
 
   return c.json({ data: toRecord(row) });
 });
 
 // Delete: DELETE /api/expenses/:id
-expenses.delete("/:id", async (c) => {
-  const userId = c.get("jwtPayload").sub;
-  const id = c.req.param("id");
+expenses.delete('/:id', async (c) => {
+  const userId = c.get('jwtPayload').sub;
+  const id = c.req.param('id');
 
   const deleted = await db
     .delete(expenseRecords)
@@ -149,7 +149,7 @@ expenses.delete("/:id", async (c) => {
     .get();
 
   if (!deleted) {
-    return c.json({ error: "Not found" }, 404);
+    return c.json({ error: 'Not found' }, 404);
   }
 
   return c.json({ success: true });
