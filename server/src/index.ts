@@ -33,9 +33,10 @@ app.route('/api/expenses', expenseRoutes);
 
 // Start server
 const port = Number(process.env.PORT ?? 3000);
-console.log(`🔥 Hono server running on http://localhost:${port}`);
+console.log(`🔥 Hono server running on http://localhost:${port} (PID: ${process.pid})`);
 
 export default {
   port,
   fetch: app.fetch,
+  reusePort: true,
 };

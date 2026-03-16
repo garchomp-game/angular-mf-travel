@@ -9,7 +9,8 @@
     "typecheck": "tsc --noEmit",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "check": "bun run typecheck && bun run format:check",
+    "check:parallel": "concurrently -g 'bun:typecheck' 'bun:format:check'",
+    "check": "bun run check:parallel",
     "db:generate": "bunx drizzle-kit generate",
     "db:migrate": "bunx drizzle-kit migrate",
     "db:push": "bunx drizzle-kit push",
@@ -18,6 +19,7 @@
   "devDependencies": {
     "@types/bcryptjs": "^3.0.0",
     "@types/bun": "latest",
+    "concurrently": "^9.2.1",
     "drizzle-kit": "^0.31.9",
     "prettier": "^3.8.1"
   },

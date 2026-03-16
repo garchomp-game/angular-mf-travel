@@ -1,0 +1,13 @@
+{
+  "name": "angular-mf-travel",
+  "private": true,
+  "scripts": {
+    "check": "concurrently -g 'bun:check:server' 'bun:check:app'",
+    "check:server": "cd server && bun run check",
+    "check:app": "cd app && bun run check",
+    "dev": "concurrently -n server,app -c blue,green 'cd server && bun run dev' 'cd app && bun run start'"
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.1"
+  }
+}
