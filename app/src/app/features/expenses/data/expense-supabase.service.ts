@@ -8,7 +8,7 @@ export interface ExpenseRecord {
   date: string;
   destination: string;
   payerDetail: string;
-  amount: number;
+  isRoundTrip: boolean;
   category?: string;
   taxType?: string;
   preApprovalNumber?: string;
@@ -118,28 +118,13 @@ export class ExpenseSupabaseService {
     return true;
   }
 
-  toCsv(expenses: ExpenseRecord[]): string {
-    const header = ['日付', '訪問先', '支払先・内容', '金額', '経費科目', 'メモ'];
-    const rows = expenses.map((e) => [
-      e.date,
-      e.destination,
-      e.payerDetail,
-      `${e.amount}`,
-      e.category ?? '',
-      e.memo ?? '',
-    ]);
-    return [header, ...rows]
-      .map((row) => row.map((cell) => `"${String(cell).replaceAll('"', '""')}"`).join(','))
-      .join('\n');
-  }
-
   private fromDb(row: Record<string, unknown>): ExpenseRecord {
     return {
       id: row['id'] as string,
       date: row['travel_date'] as string,
       destination: row['visit_to'] as string,
       payerDetail: row['route_text'] as string,
-      amount: Number(row['amount']),
+      isRoundTrip: Boolean(row['is_round_trip']),
       category: (row['category_code'] as string) || undefined,
       taxType: (row['tax_code'] as string) || undefined,
       preApprovalNumber: (row['pre_approval_no'] as string) || undefined,
@@ -153,7 +138,8 @@ export class ExpenseSupabaseService {
       travel_date: draft.date,
       visit_to: draft.destination,
       route_text: draft.payerDetail,
-      amount: draft.amount,
+      is_round_trip: draft.isRoundTrip,
+      amount: 0,
       category_code: draft.category || '',
       tax_code: draft.taxType || '',
       pre_approval_no: draft.preApprovalNumber || null,

@@ -21,7 +21,7 @@ describe('ExpenseCardComponent', () => {
       date: '2026-03-01',
       destination: 'テスト',
       payerDetail: 'JR',
-      amount: 1000,
+      isRoundTrip: false,
     };
     fixture.detectChanges();
     expect(fixture.componentInstance).toBeTruthy();
@@ -34,22 +34,22 @@ describe('ExpenseCardComponent', () => {
       date: '2026-03-01',
       destination: '大阪本社',
       payerDetail: 'JR東海',
-      amount: 27200,
+      isRoundTrip: true,
     };
     fixture.detectChanges();
     expect(fixture.nativeElement.textContent).toContain('大阪本社');
   });
 
-  it('should display formatted amount', () => {
+  it('should show round-trip badge', () => {
     const fixture = TestBed.createComponent(ExpenseCardComponent);
     fixture.componentInstance.expense = {
       id: '1',
       date: '2026-03-01',
       destination: 'テスト',
       payerDetail: 'JR',
-      amount: 27200,
+      isRoundTrip: true,
     };
     fixture.detectChanges();
-    expect(fixture.nativeElement.textContent).toContain('27,200');
+    expect(fixture.nativeElement.textContent).toContain('往復');
   });
 });

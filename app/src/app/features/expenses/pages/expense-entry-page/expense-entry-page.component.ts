@@ -61,20 +61,18 @@ const DETAIL_PANEL_STORAGE_KEY = 'expense-entry-details-expanded';
             <input
               type="text"
               formControlName="payerDetail"
-              placeholder="例: JR東海 / 新幹線往復"
+              placeholder="例: JR東海 / 新幹線"
               class="border border-(--color-border) rounded-md px-3 py-2 bg-(--color-bg) text-(--color-text)"
             />
           </label>
 
-          <label class="grid gap-2">
-            金額 *
+          <label class="flex items-center gap-2 cursor-pointer select-none py-1">
             <input
-              type="number"
-              min="1"
-              formControlName="amount"
-              placeholder="例: 1200"
-              class="border border-(--color-border) rounded-md px-3 py-2 bg-(--color-bg) text-(--color-text)"
+              type="checkbox"
+              formControlName="isRoundTrip"
+              class="w-5 h-5 accent-(--color-primary) cursor-pointer"
             />
+            <span>往復</span>
           </label>
 
           <button
@@ -129,7 +127,9 @@ const DETAIL_PANEL_STORAGE_KEY = 'expense-entry-details-expanded';
           <p class="text-(--color-danger) m-0" *ngIf="expenseForm.invalid && expenseForm.touched">
             必須項目を入力してください。
           </p>
-          <p class="text-(--color-danger) m-0" *ngIf="errorMessage">{{ errorMessage }}</p>
+          <p class="text-(--color-danger) m-0" *ngIf="errorMessage">
+            {{ errorMessage }}
+          </p>
 
           <button
             type="submit"
@@ -163,7 +163,7 @@ export class ExpenseEntryPageComponent implements OnInit {
     date: ['', Validators.required],
     destination: ['', Validators.required],
     payerDetail: ['', Validators.required],
-    amount: [0, [Validators.required, Validators.min(1)]],
+    isRoundTrip: [false],
     category: [''],
     taxType: [''],
     preApprovalNumber: [''],
@@ -184,7 +184,7 @@ export class ExpenseEntryPageComponent implements OnInit {
       date: target.date,
       destination: target.destination,
       payerDetail: target.payerDetail,
-      amount: target.amount,
+      isRoundTrip: target.isRoundTrip,
       category: target.category ?? '',
       taxType: target.taxType ?? '',
       preApprovalNumber: target.preApprovalNumber ?? '',
@@ -210,7 +210,7 @@ export class ExpenseEntryPageComponent implements OnInit {
       date: this.expenseForm.controls.date.value ?? '',
       destination: this.expenseForm.controls.destination.value ?? '',
       payerDetail: this.expenseForm.controls.payerDetail.value ?? '',
-      amount: Number(this.expenseForm.controls.amount.value ?? 0),
+      isRoundTrip: this.expenseForm.controls.isRoundTrip.value ?? false,
       category: this.expenseForm.controls.category.value ?? '',
       taxType: this.expenseForm.controls.taxType.value ?? '',
       preApprovalNumber: this.expenseForm.controls.preApprovalNumber.value ?? '',

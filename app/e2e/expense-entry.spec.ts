@@ -10,8 +10,8 @@ test.describe('経費入力ページ', () => {
 
     await page.getByLabel('日付 *').fill('2026-03-15');
     await page.getByLabel('訪問先 *').fill('札幌支社');
-    await page.getByLabel('支払先・内容 *').fill('ANA / 往復航空券');
-    await page.getByLabel('金額 *').fill('45000');
+    await page.getByLabel('支払先・内容 *').fill('ANA / 航空券');
+    await page.getByLabel('往復').check();
 
     await page.getByRole('button', { name: '保存' }).click();
     await page.waitForURL('**/list**', { timeout: 15000 });
@@ -27,15 +27,10 @@ test.describe('経費入力ページ', () => {
     await expect(page).toHaveURL(/\/entry/);
   });
 
-  test('金額0で保存されない', async ({ page }) => {
+  test('往復チェックボックスの初期状態は未チェック', async ({ page }) => {
     await page.goto('/entry');
-    await page.getByLabel('日付 *').fill('2026-03-15');
-    await page.getByLabel('訪問先 *').fill('テスト');
-    await page.getByLabel('支払先・内容 *').fill('テスト');
-    await page.getByLabel('金額 *').fill('0');
-
-    await page.getByRole('button', { name: '保存' }).click();
-    await expect(page).toHaveURL(/\/entry/);
+    const checkbox = page.getByLabel('往復');
+    await expect(checkbox).not.toBeChecked();
   });
 
   test('詳細パネルの開閉', async ({ page }) => {
@@ -59,7 +54,7 @@ test.describe('経費入力ページ', () => {
     await page.getByLabel('日付 *').fill('2026-03-16');
     await page.getByLabel('訪問先 *').fill('仙台営業所');
     await page.getByLabel('支払先・内容 *').fill('新幹線やまびこ');
-    await page.getByLabel('金額 *').fill('11000');
+    await page.getByLabel('往復').check();
 
     await page.getByRole('button', { name: '詳細項目を開く' }).click();
     await page.getByLabel('経費科目').fill('旅費交通費');
@@ -74,7 +69,9 @@ test.describe('経費入力ページ', () => {
 test.describe('経費編集ページ', () => {
   test('一覧から編集ボタンで既存データがロードされる', async ({ page }) => {
     await page.goto('/list');
-    await expect(page.getByText('読み込み中...')).toBeHidden({ timeout: 10000 });
+    await expect(page.getByText('読み込み中...')).toBeHidden({
+      timeout: 10000,
+    });
 
     await page.getByRole('button', { name: '編集' }).first().click();
     await expect(page.locator('h1')).toContainText('経費編集');
@@ -86,7 +83,9 @@ test.describe('経費編集ページ', () => {
 
   test('編集保存後に一覧へ更新内容が反映される', async ({ page }) => {
     await page.goto('/list');
-    await expect(page.getByText('読み込み中...')).toBeHidden({ timeout: 10000 });
+    await expect(page.getByText('読み込み中...')).toBeHidden({
+      timeout: 10000,
+    });
 
     await page.getByRole('button', { name: '編集' }).first().click();
     await expect(page.locator('h1')).toContainText('経費編集');

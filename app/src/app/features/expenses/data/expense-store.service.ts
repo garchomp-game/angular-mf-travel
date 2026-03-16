@@ -6,7 +6,7 @@ export interface ExpenseRecord {
   date: string;
   destination: string;
   payerDetail: string;
-  amount: number;
+  isRoundTrip: boolean;
   category?: string;
   taxType?: string;
   preApprovalNumber?: string;
@@ -22,8 +22,8 @@ const DEFAULT_EXPENSES: ExpenseRecord[] = [
     id: 'exp-seed-1',
     date: '2026-03-08',
     destination: '大阪本社',
-    payerDetail: 'JR東海 / 新幹線往復',
-    amount: 27200,
+    payerDetail: 'JR東海 / 新幹線',
+    isRoundTrip: true,
     category: '旅費交通費',
     memo: '会議出張',
   },
@@ -32,7 +32,7 @@ const DEFAULT_EXPENSES: ExpenseRecord[] = [
     date: '2026-03-10',
     destination: '福岡支店',
     payerDetail: '博多駅タクシー / 客先訪問移動',
-    amount: 3200,
+    isRoundTrip: false,
     category: '旅費交通費',
     memo: '雨天のため利用',
   },
@@ -41,7 +41,7 @@ const DEFAULT_EXPENSES: ExpenseRecord[] = [
     date: '2026-02-14',
     destination: '名古屋営業所',
     payerDetail: '近鉄 / 顧客訪問',
-    amount: 1800,
+    isRoundTrip: true,
     category: '旅費交通費',
     memo: '定例訪問',
   },
@@ -86,21 +86,6 @@ export class ExpenseStoreService {
     this.write(this.read().filter((expense) => expense.id !== id));
   }
 
-  toCsv(expenses: ExpenseRecord[]): string {
-    const header = ['日付', '訪問先', '支払先・内容', '金額', '経費科目', 'メモ'];
-    const rows = expenses.map((expense) => [
-      expense.date,
-      expense.destination,
-      expense.payerDetail,
-      `${expense.amount}`,
-      expense.category ?? '',
-      expense.memo ?? '',
-    ]);
-    return [header, ...rows]
-      .map((row) => row.map((cell) => `"${String(cell).replaceAll('"', '""')}"`).join(','))
-      .join('\n');
-  }
-
   private read(): ExpenseRecord[] {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) {
@@ -141,7 +126,7 @@ export class ExpenseStoreService {
       typeof record.date === 'string' &&
       typeof record.destination === 'string' &&
       typeof record.payerDetail === 'string' &&
-      typeof record.amount === 'number'
+      typeof record.isRoundTrip === 'boolean'
     );
   }
 

@@ -13,16 +13,19 @@ describe('ExpenseEntryPageComponent', () => {
       date: '2026-03-20',
       destination: 'テスト',
       payerDetail: 'JR',
-      amount: 1000,
+      isRoundTrip: false,
     }),
-    toCsv: vi.fn(),
   };
 
   const mockAuthService = {
     signOut: vi.fn().mockResolvedValue(undefined),
     currentUser: { id: 'user-1' },
-    user$: { pipe: vi.fn().mockReturnValue({ subscribe: vi.fn() }) },
-    isAuthenticated$: { pipe: vi.fn().mockReturnValue({ subscribe: vi.fn() }) },
+    user$: {
+      pipe: vi.fn().mockReturnValue({ subscribe: vi.fn() }),
+    },
+    isAuthenticated$: {
+      pipe: vi.fn().mockReturnValue({ subscribe: vi.fn() }),
+    },
   };
 
   beforeEach(async () => {
@@ -31,7 +34,10 @@ describe('ExpenseEntryPageComponent', () => {
     await TestBed.configureTestingModule({
       imports: [
         ExpenseEntryPageComponent,
-        LoggerModule.forRoot({ level: NgxLoggerLevel.OFF, disableConsoleLogging: true }),
+        LoggerModule.forRoot({
+          level: NgxLoggerLevel.OFF,
+          disableConsoleLogging: true,
+        }),
       ],
       providers: [
         provideRouter([]),
@@ -62,7 +68,7 @@ describe('ExpenseEntryPageComponent', () => {
     expect(form.get('date')).toBeTruthy();
     expect(form.get('destination')).toBeTruthy();
     expect(form.get('payerDetail')).toBeTruthy();
-    expect(form.get('amount')).toBeTruthy();
+    expect(form.get('isRoundTrip')).toBeTruthy();
   });
 
   it('should not submit when form is invalid', async () => {

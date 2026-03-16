@@ -6,9 +6,13 @@ import { expect, test } from '@playwright/test';
 test.describe('経費一覧ページ', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/list');
-    await expect(page.locator('h1')).toContainText('経費一覧', { timeout: 10000 });
+    await expect(page.locator('h1')).toContainText('経費一覧', {
+      timeout: 10000,
+    });
     // 読み込み完了を待つ
-    await expect(page.getByText('読み込み中...')).toBeHidden({ timeout: 10000 });
+    await expect(page.getByText('読み込み中...')).toBeHidden({
+      timeout: 10000,
+    });
   });
 
   test('シード経費データが表示される', async ({ page }) => {
@@ -21,7 +25,9 @@ test.describe('経費一覧ページ', () => {
     await page.getByRole('button', { name: '前月' }).click();
 
     // 2月データが表示されるまで待つ
-    await expect(page.getByText('名古屋営業所')).toBeVisible({ timeout: 10000 });
+    await expect(page.getByText('名古屋営業所')).toBeVisible({
+      timeout: 10000,
+    });
 
     // 3月データは非表示
     await expect(page.getByText('大阪本社')).not.toBeVisible();
@@ -43,19 +49,36 @@ test.describe('経費一覧ページ', () => {
     await expect(page.getByText('該当データなし')).toBeVisible();
   });
 
-  test('CSV出力でファイルがダウンロードされる', async ({ page }) => {
-    const downloadPromise = page.waitForEvent('download');
-    await page.getByRole('button', { name: 'CSV出力' }).click();
-    const download = await downloadPromise;
+  test('テーブル表示に切替できる', async ({ page }) => {
+    // 初期はカード表示
+    await expect(page.getByRole('button', { name: '📋 テーブル' })).toBeVisible();
 
-    await expect(page.getByText('CSV出力に成功しました')).toBeVisible();
-    expect(download.suggestedFilename()).toContain('expenses-2026-03.csv');
+    // テーブルに切替
+    await page.getByRole('button', { name: '📋 テーブル' }).click();
+    await expect(page.locator('table')).toBeVisible();
+    await expect(page.locator('th')).toContainText(['日付']);
+
+    // カードに戻す
+    await page.getByRole('button', { name: '📇 カード' }).click();
+    await expect(page.locator('table')).not.toBeVisible();
+  });
+
+  test('テーブル表示で往復バッジが表示される', async ({ page }) => {
+    await page.getByRole('button', { name: '📋 テーブル' }).click();
+    await expect(page.locator('table')).toBeVisible();
+
+    // 大阪本社は往復
+    await expect(page.getByText('往復').first()).toBeVisible();
+    // 福岡支店は片道
+    await expect(page.getByText('片道')).toBeVisible();
   });
 
   test('削除: 確認ダイアログで承認後に成功メッセージ表示', async ({ page }) => {
     page.once('dialog', (dialog) => dialog.accept());
     await page.getByRole('button', { name: '削除' }).first().click();
-    await expect(page.getByText('削除に成功しました')).toBeVisible({ timeout: 10000 });
+    await expect(page.getByText('削除に成功しました')).toBeVisible({
+      timeout: 10000,
+    });
   });
 
   test('削除: キャンセルでデータ変化なし', async ({ page }) => {

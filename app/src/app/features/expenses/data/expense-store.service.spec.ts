@@ -1,5 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import { ExpenseStoreService, ExpenseRecord } from './expense-store.service';
+import { ExpenseStoreService } from './expense-store.service';
 import { LoggerModule, NgxLoggerLevel } from 'ngx-logger';
 
 describe('ExpenseStoreService', () => {
@@ -8,7 +8,12 @@ describe('ExpenseStoreService', () => {
   beforeEach(() => {
     localStorage.clear();
     TestBed.configureTestingModule({
-      imports: [LoggerModule.forRoot({ level: NgxLoggerLevel.OFF, disableConsoleLogging: true })],
+      imports: [
+        LoggerModule.forRoot({
+          level: NgxLoggerLevel.OFF,
+          disableConsoleLogging: true,
+        }),
+      ],
     });
     service = TestBed.inject(ExpenseStoreService);
   });
@@ -53,12 +58,13 @@ describe('ExpenseStoreService', () => {
       date: '2026-03-20',
       destination: '札幌支店',
       payerDetail: 'ANA / 空港バス',
-      amount: 8500,
+      isRoundTrip: true,
     };
 
     const created = service.save(draft);
     expect(created.id).toBeTruthy();
     expect(created.destination).toBe('札幌支店');
+    expect(created.isRoundTrip).toBe(true);
 
     const found = service.findById(created.id);
     expect(found).toBeDefined();
@@ -70,7 +76,7 @@ describe('ExpenseStoreService', () => {
         date: '2026-03-08',
         destination: '大阪本社(更新)',
         payerDetail: 'JR東海',
-        amount: 30000,
+        isRoundTrip: false,
       },
       'exp-seed-1',
     );
@@ -81,7 +87,15 @@ describe('ExpenseStoreService', () => {
 
   it('should throw when updating non-existent expense', () => {
     expect(() =>
-      service.save({ date: '', destination: '', payerDetail: '', amount: 0 }, 'non-existent'),
+      service.save(
+        {
+          date: '',
+          destination: '',
+          payerDetail: '',
+          isRoundTrip: false,
+        },
+        'non-existent',
+      ),
     ).toThrow();
   });
 
@@ -90,23 +104,11 @@ describe('ExpenseStoreService', () => {
     expect(service.findById('exp-seed-1')).toBeUndefined();
   });
 
-  it('should generate CSV with headers', () => {
-    const expenses: ExpenseRecord[] = [
-      {
-        id: '1',
-        date: '2026-03-01',
-        destination: 'テスト社',
-        payerDetail: 'JR',
-        amount: 1000,
-        category: '旅費',
-        memo: 'テスト',
-      },
-    ];
-
-    const csv = service.toCsv(expenses);
-    expect(csv).toContain('日付');
-    expect(csv).toContain('テスト社');
-    expect(csv).toContain('1000');
+  it('should have isRoundTrip in default data', () => {
+    const result = service.listByMonth('2026年03月');
+    const osaka = result.find((e) => e.destination === '大阪本社');
+    expect(osaka).toBeDefined();
+    expect(osaka!.isRoundTrip).toBe(true);
   });
 
   it('should recover from corrupted localStorage', () => {
