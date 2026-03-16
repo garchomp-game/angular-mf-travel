@@ -1,6 +1,6 @@
 {
   "framework": null,
-  "installCommand": "cd app && bun install && cd ../server && bun install",
+  "installCommand": "bun install && cd app && bun install && cd ../server && bun install",
   "buildCommand": "cd app && bun run build",
   "outputDirectory": "app/dist/app/browser",
   "functions": {
