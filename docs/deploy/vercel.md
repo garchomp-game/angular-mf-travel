@@ -1,77 +1,89 @@
-# Vercelデプロイ手順
+# Vercel デプロイ手順
 
-## 1. Vercelプロジェクト設定
+## アーキテクチャ
 
-本リポジトリは `app/` 配下にAngularアプリがあります。Vercelではリポジトリルートを対象にしつつ、
-ビルド時に `app/` へ移動してビルドする設定を使います。
+```
+[ブラウザ] → [Vercel Edge Network]
+  ├── /api/* → Vercel Serverless Function (Hono + Turso)
+  └── /* → Static Files (Angular SPA)
+```
 
-- Build Command: `cd app && bun run build`
-- Output Directory: `app/dist/app/browser`
+- フロントエンド: `app/` (Angular) → 静的ファイルとして配信
+- バックエンド: `server/` (Hono) → `api/index.ts` 経由で Serverless Function として実行
+- データベース: Turso (libSQL) — エッジ対応のSQLite互換DB
 
-`vercel.json` にも同じ値を定義済みです。
+## 1. 環境変数の設定
 
-## 2. Environment Variables の登録手順
+Vercel ダッシュボード → **Settings → Environment Variables** で以下を設定:
 
-Vercelダッシュボードで以下を設定します。
+### 必須
 
-1. 対象プロジェクトを開く。
-2. **Settings** → **Environment Variables** を開く。
-3. キー名・値・Environment（Preview / Production）を指定して保存する。
+| 変数名 | 説明 | 例 |
+|---|---|---|
+| `TURSO_DATABASE_URL` | Turso DB URL | `libsql://your-db.turso.io` |
+| `TURSO_AUTH_TOKEN` | Turso 認証トークン | `eyJhbGciOi...` |
+| `JWT_SECRET` | JWT署名シークレット (**↓の手順で生成**) | `Lx4pQz2m...` |
 
-### 必須キー
+#### JWT_SECRET の生成
 
-- `SUPABASE_URL`
-- `SUPABASE_ANON_KEY`
+```bash
+openssl rand -base64 32
+```
 
-> 本アプリはビルド時に環境変数を使って `app/public/app-config.js` を生成します。
+⚠️ **`dev-secret-change-me` のまま絶対にデプロイしないこと**
 
-## 3. Preview / Production 分離ルール（誤接続防止）
+### 任意
 
-同じキー名を環境ごとに分けて登録し、値を厳格に分離します。
+| 変数名 | 説明 | 例 |
+|---|---|---|
+| `ALLOWED_ORIGIN` | 追加CORS許可ドメイン | `https://custom.example.com` |
 
-- `SUPABASE_URL`
-  - Preview: **検証用SupabaseプロジェクトURLのみ**
-  - Production: **本番SupabaseプロジェクトURLのみ**
-- `SUPABASE_ANON_KEY`
-  - Preview: **検証用Anon Keyのみ**
-  - Production: **本番Anon Keyのみ**
+> `VERCEL_URL` は Vercel が自動設定するため、デフォルトで Vercel ドメインの CORS は許可されます。
 
-### 命名規約（運用ラベル）
+## 2. Preview / Production 分離
 
-Vercelのキー名自体は共通（`SUPABASE_URL` / `SUPABASE_ANON_KEY`）を維持し、
-値の払い出し元シークレット名・台帳名を下記規約で管理します。
+| 変数名 | Preview | Production |
+|---|---|---|
+| `TURSO_DATABASE_URL` | 検証用 DB URL | 本番 DB URL |
+| `TURSO_AUTH_TOKEN` | 検証用トークン | 本番トークン |
+| `JWT_SECRET` | 検証用シークレット | 本番シークレット |
 
-- Preview用: `preview_<service>_<kind>`
-  - 例: `preview_supabase_url`, `preview_supabase_anon_key`
-- Production用: `prod_<service>_<kind>`
-  - 例: `prod_supabase_url`, `prod_supabase_anon_key`
+- Preview と Production で**必ず別の値**を設定
+- 同じ DB を共有しない
 
-### 追加の安全策
+## 3. vercel.json 設定済み内容
 
-- Preview値をProductionにコピーしない（必ず別発行）。
-- 値登録時に「Environment」の選択をダブルチェックする。
-- ローテーション時は Preview → Production の順で段階適用する。
+```json
+{
+  "installCommand": "cd app && bun install && cd ../server && bun install",
+  "buildCommand": "cd app && bun run build",
+  "outputDirectory": "app/dist/app/browser",
+  "functions": {
+    "api/index.ts": {
+      "runtime": "@vercel/node@4",
+      "includeFiles": "server/**"
+    }
+  },
+  "rewrites": [
+    { "source": "/api/:path(.*)", "destination": "/api" },
+    { "source": "/((?!api/).*)", "destination": "/index.html" }
+  ]
+}
+```
 
-## 4. デプロイ後ヘルスチェック（チェックリスト）
+## 4. デプロイ後ヘルスチェック
 
-デプロイ完了後、以下を確認します。
-
-- [ ] 初回表示
-  - [ ] トップ画面が3秒以内を目安に表示される
-  - [ ] コンソールに初期化エラー（設定不足・接続失敗）が出ていない
-- [ ] 一覧取得
-  - [ ] 当月データが取得・表示される
-  - [ ] データ0件時に空状態メッセージが表示される
-- [ ] 登録
-  - [ ] 必須項目入力で新規明細を登録できる
-  - [ ] 登録直後に一覧へ反映される
-- [ ] CSV
-  - [ ] CSV出力操作が成功する
-  - [ ] 出力内容が画面の対象月/絞り込み条件と一致する
+- [ ] `https://your-app.vercel.app/api/health` → `{"status":"ok"}`
+- [ ] ログインページが表示される
+- [ ] 新規登録 → ログイン → 一覧表示できる
+- [ ] 経費の登録・編集・削除が動作する
+- [ ] テーマ切替が動作する
 
 ## 5. トラブルシュート
 
-- `supabaseUrl` / `supabaseAnonKey` が空になる場合
-  - Environment Variables が未設定、またはEnvironmentの割当ミスを確認する。
-- Buildは成功するが実行時に接続エラーが出る場合
-  - PreviewとProductionで設定値が入れ替わっていないか確認する。
+| 症状 | 原因 |
+|---|---|
+| API が 500 エラー | 環境変数 (`TURSO_*`, `JWT_SECRET`) 未設定 |
+| CORS エラー | `ALLOWED_ORIGIN` 未設定 (通常は VERCEL_URL で自動対応) |
+| ログイン後すぐログアウトされる | Preview/Production で JWT_SECRET が異なる |
+| DB 接続エラー | `TURSO_DATABASE_URL` / `TURSO_AUTH_TOKEN` のミス |

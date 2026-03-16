@@ -1,9 +1,16 @@
 {
   "framework": null,
-  "installCommand": "cd app && bun install",
+  "installCommand": "cd app && bun install && cd ../server && bun install",
   "buildCommand": "cd app && bun run build",
   "outputDirectory": "app/dist/app/browser",
+  "functions": {
+    "api/index.ts": {
+      "runtime": "@vercel/node@4",
+      "includeFiles": "server/**"
+    }
+  },
   "rewrites": [
-    { "source": "/((?!assets/).*)", "destination": "/index.html" }
+    { "source": "/api/:path(.*)", "destination": "/api" },
+    { "source": "/((?!api/).*)", "destination": "/index.html" }
   ]
 }
