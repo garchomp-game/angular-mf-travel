@@ -4,7 +4,7 @@
   "buildCommand": "cd app && bun run build",
   "outputDirectory": "app/dist/app/browser",
   "functions": {
-    "api/index.mts": {
+    "api/index.ts": {
       "includeFiles": "server/**"
     }
   },
