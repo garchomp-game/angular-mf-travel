@@ -4,3 +4,7 @@ bun.lock
 server/dist/
 reference/llms/supabase-guides.txt
 reference/llms/supabase-cli.txt
+.audits/
+app/.env.e2e
+app/out-tsc/
+app/dist/

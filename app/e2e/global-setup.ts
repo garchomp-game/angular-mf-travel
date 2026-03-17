@@ -2,105 +2,92 @@ import { mkdirSync } from 'node:fs';
 import { join } from 'node:path';
 import type { FullConfig } from '@playwright/test';
 import { chromium } from '@playwright/test';
+import { createClient } from '@supabase/supabase-js';
 
 export const TEST_EMAIL = 'e2e-test@example.com';
-export const TEST_PASSWORD = 'e2e-test-password';
+export const TEST_PASSWORD = 'e2e-test-password123';
 
-const API_BASE = 'http://127.0.0.1:3000/api';
+const SUPABASE_URL = process.env['SUPABASE_URL'] ?? '';
+const SUPABASE_SERVICE_KEY = process.env['SUPABASE_SERVICE_KEY'] ?? '';
 
 const seedExpenses = [
   {
-    date: '2026-03-08',
-    destination: '大阪本社',
-    payerDetail: 'JR東海 / 新幹線',
-    isRoundTrip: true,
-    category: '旅費交通費',
-    taxType: '課税',
+    travel_date: '2026-03-08',
+    visit_to: '大阪本社',
+    route_text: 'JR東海 / 新幹線',
+    is_round_trip: true,
+    category_code: '旅費交通費',
+    tax_code: '課税',
     memo: '会議出張',
   },
   {
-    date: '2026-03-10',
-    destination: '福岡支店',
-    payerDetail: '博多駅タクシー / 客先訪問移動',
-    isRoundTrip: false,
-    category: '旅費交通費',
-    taxType: '課税',
+    travel_date: '2026-03-10',
+    visit_to: '福岡支店',
+    route_text: '博多駅タクシー / 客先訪問移動',
+    is_round_trip: false,
+    category_code: '旅費交通費',
+    tax_code: '課税',
     memo: '雨天のため利用',
   },
   {
-    date: '2026-02-14',
-    destination: '名古屋営業所',
-    payerDetail: '近鉄 / 顧客訪問',
-    isRoundTrip: true,
-    category: '旅費交通費',
-    taxType: '課税',
+    travel_date: '2026-02-14',
+    visit_to: '名古屋営業所',
+    route_text: '近鉄 / 顧客訪問',
+    is_round_trip: true,
+    category_code: '旅費交通費',
+    tax_code: '課税',
     memo: '定例訪問',
   },
 ];
 
-async function apiPost(path: string, body: unknown, token?: string) {
-  const headers: Record<string, string> = { 'Content-Type': 'application/json' };
-  if (token) headers['Authorization'] = `Bearer ${token}`;
-  const res = await fetch(`${API_BASE}${path}`, {
-    method: 'POST',
-    headers,
-    body: JSON.stringify(body),
-  });
-  if (!res.ok) {
-    const err = await res.text();
-    throw new Error(`API ${path} failed (${res.status}): ${err}`);
-  }
-  return res.json();
-}
-
 export default async function globalSetup(config: FullConfig): Promise<void> {
-  // --- 1. Register test user (or login if already exists) ---
-  let token: string;
+  // Use service_role key (bypasses RLS) for admin operations
+  const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY, {
+    auth: { autoRefreshToken: false, persistSession: false },
+  });
 
-  try {
-    const registerRes = await apiPost('/auth/register', {
+  // --- 0. Clean up old e2e-auth-* test users from previous runs ---
+  const { data: allUsers } = await supabase.auth.admin.listUsers();
+  if (allUsers?.users) {
+    for (const u of allUsers.users) {
+      if (u.email?.startsWith('e2e-auth-')) {
+        await supabase.auth.admin.deleteUser(u.id);
+      }
+    }
+  }
+
+  // --- 1. Create or find test user ---
+  let userId: string;
+
+  // Try to find existing user
+  const { data: existingUsers } = await supabase.auth.admin.listUsers();
+  const existing = existingUsers?.users?.find((u) => u.email === TEST_EMAIL);
+
+  if (existing) {
+    userId = existing.id;
+    // Ensure email is confirmed
+    await supabase.auth.admin.updateUserById(userId, {
+      email_confirm: true,
+    });
+  } else {
+    const { data: newUser, error } = await supabase.auth.admin.createUser({
       email: TEST_EMAIL,
       password: TEST_PASSWORD,
+      email_confirm: true,
     });
-    token = registerRes.token;
-  } catch {
-    // User may already exist from a previous run — try login instead
-    const loginRes = await apiPost('/auth/login', {
-      email: TEST_EMAIL,
-      password: TEST_PASSWORD,
-    });
-    token = loginRes.token;
+    if (error) throw new Error(`Failed to create test user: ${error.message}`);
+    userId = newUser.user.id;
   }
 
-  // --- 2. Seed expense data ---
-  // Delete any existing expenses first (list and delete one by one)
-  const listRes = await fetch(`${API_BASE}/expenses?month=2026年03月`, {
-    headers: { Authorization: `Bearer ${token}` },
-  });
-  const existing = (await listRes.json()) as { data: { id: string }[] };
-  for (const exp of existing.data) {
-    await fetch(`${API_BASE}/expenses/${exp.id}`, {
-      method: 'DELETE',
-      headers: { Authorization: `Bearer ${token}` },
-    });
-  }
-
-  // Also clean February data
-  const listFeb = await fetch(`${API_BASE}/expenses?month=2026年02月`, {
-    headers: { Authorization: `Bearer ${token}` },
-  });
-  const existingFeb = (await listFeb.json()) as { data: { id: string }[] };
-  for (const exp of existingFeb.data) {
-    await fetch(`${API_BASE}/expenses/${exp.id}`, {
-      method: 'DELETE',
-      headers: { Authorization: `Bearer ${token}` },
-    });
-  }
+  // --- 2. Clean existing test data and seed ---
+  // Delete all expense_records for this user
+  await supabase.from('expense_records').delete().eq('user_id', userId);
 
   // Insert seed expenses
-  for (const expense of seedExpenses) {
-    await apiPost('/expenses', expense, token);
-  }
+  const { error: insertError } = await supabase
+    .from('expense_records')
+    .insert(seedExpenses.map((e) => ({ ...e, user_id: userId })));
+  if (insertError) throw new Error(`Seed insert failed: ${insertError.message}`);
 
   // --- 3. Login via browser to capture storageState ---
   const baseURL = config.projects[0]?.use?.baseURL ?? 'http://127.0.0.1:4200';

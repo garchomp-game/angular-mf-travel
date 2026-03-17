@@ -116,29 +116,32 @@ export class ExpenseSupabaseService {
         return toRecord(data as DbRow);
       }
 
-      // user_id is set automatically by RLS — Supabase infers from auth.uid()
-      const { data: { user } } = await this.sb.client.auth.getUser();
+      // Get user_id from current session
+      const {
+        data: { session },
+      } = await this.sb.client.auth.getSession();
+      if (!session?.user) {
+        this.logger.error('[ExpenseApi] save failed: no active session');
+        return undefined;
+      }
       const { data, error } = await this.sb.client
         .from('expense_records')
-        .insert({ ...row, user_id: user!.id })
+        .insert({ ...row, user_id: session.user.id })
         .select()
         .single();
 
       if (error) throw error;
       this.logger.info('[ExpenseApi] 作成成功', { id: data.id });
       return toRecord(data as DbRow);
-    } catch (e) {
-      this.logger.error('[ExpenseApi] save failed', e);
+    } catch (e: unknown) {
+      this.logger.error('[ExpenseApi] save failed', e instanceof Error ? e.message : e);
       return undefined;
     }
   }
 
   async remove(id: string): Promise<boolean> {
     try {
-      const { error } = await this.sb.client
-        .from('expense_records')
-        .delete()
-        .eq('id', id);
+      const { error } = await this.sb.client.from('expense_records').delete().eq('id', id);
 
       if (error) throw error;
       this.logger.info('[ExpenseApi] 削除成功', { id });

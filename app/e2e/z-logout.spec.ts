@@ -1,7 +1,7 @@
 /**
  * ログアウト E2E テスト
  *
- * このテストはlocalStorageのJWTトークンをクリアするため、
+ * Supabase Auth のセッションをクリアするため、
  * ファイル名を z- プレフィックスにしてアルファベット順で最後に実行される。
  */
 import { test, expect } from '@playwright/test';
@@ -12,7 +12,7 @@ test('ログアウトボタンで /login に遷移する', async ({ page }) => {
   // セッション切れの場合は再ログイン
   if (page.url().includes('/login')) {
     await page.getByPlaceholder('user@example.com').fill('e2e-test@example.com');
-    await page.getByPlaceholder('6文字以上').fill('e2e-test-password');
+    await page.getByPlaceholder('6文字以上').fill('e2e-test-password123');
     await page.locator('form').getByRole('button', { name: 'ログイン' }).click();
     await page.waitForURL('**/list**', { timeout: 10000 });
   }

@@ -1,4 +1,4 @@
-import { Injectable, inject, NgZone } from '@angular/core';
+import { Injectable, inject, NgZone, DestroyRef } from '@angular/core';
 import { Router } from '@angular/router';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
@@ -21,6 +21,7 @@ export class AuthService {
   private readonly router = inject(Router);
   private readonly zone = inject(NgZone);
   private readonly supabase = inject(SupabaseService);
+  private readonly destroyRef = inject(DestroyRef);
 
   private readonly userSubject = new BehaviorSubject<AuthUser | null>(null);
   private readonly readySubject = new BehaviorSubject<boolean>(false);
@@ -72,24 +73,34 @@ export class AuthService {
       return { success: false, error: message };
     }
 
-    this.zone.run(() => {
-      this.userSubject.next({ id: data.user!.id, email: data.user!.email! });
-    });
+    // メール確認が有効な場合、session は null になる
+    if (data.session) {
+      this.zone.run(() => {
+        this.userSubject.next({ id: data.user!.id, email: data.user!.email! });
+      });
+    }
     this.logger.info('[Auth] 登録成功', { userId: data.user.id });
     return { success: true };
   }
 
   async signOut(): Promise<void> {
-    await this.supabase.client.auth.signOut();
-    this.zone.run(() => {
-      this.userSubject.next(null);
-      this.logger.info('[Auth] ログアウト');
-      void this.router.navigate(['/login']);
-    });
+    try {
+      await this.supabase.client.auth.signOut();
+    } catch (e) {
+      this.logger.error('[Auth] ログアウトAPI失敗', e);
+    } finally {
+      // API の成否にかかわらずローカル状態はクリア
+      this.zone.run(() => {
+        this.userSubject.next(null);
+        this.logger.info('[Auth] ログアウト');
+        void this.router.navigate(['/login']);
+      });
+    }
   }
 
   private async initAuthState(): Promise<void> {
-    // Check existing session
+    // getSession() はローカルストレージから読み取り（高速）
+    // JWT の実際の検証は Supabase RLS 側で行われる
     const {
       data: { session },
     } = await this.supabase.client.auth.getSession();
@@ -103,8 +114,10 @@ export class AuthService {
 
     this.readySubject.next(true);
 
-    // Listen for auth state changes
-    this.supabase.client.auth.onAuthStateChange((_event, session) => {
+    // Listen for auth state changes (subscription を保持して DestroyRef で解除)
+    const {
+      data: { subscription },
+    } = this.supabase.client.auth.onAuthStateChange((_event, session) => {
       this.zone.run(() => {
         if (session?.user) {
           this.userSubject.next({
@@ -116,5 +129,6 @@ export class AuthService {
         }
       });
     });
+    this.destroyRef.onDestroy(() => subscription.unsubscribe());
   }
 }

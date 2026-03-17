@@ -1,5 +1,5 @@
 /**
- * 経費入力・編集ページ E2E テスト
+ * 経費入力・編集ページ E2E テスト（境界値含む）
  */
 import { expect, test } from '@playwright/test';
 
@@ -25,6 +25,38 @@ test.describe('経費入力ページ', () => {
 
     await expect(page.getByText('必須項目を入力してください')).toBeVisible();
     await expect(page).toHaveURL(/\/entry/);
+  });
+
+  // --- 境界値テスト ---
+  test('訪問先: 1文字（境界値: 最小）で保存可能', async ({ page }) => {
+    await page.goto('/entry');
+    await page.getByLabel('日付 *').fill('2026-03-17');
+    await page.getByLabel('訪問先 *').fill('A');
+    await page.getByLabel('支払先・内容 *').fill('テスト');
+
+    await page.getByRole('button', { name: '保存' }).click();
+    await page.waitForURL('**/list**', { timeout: 15000 });
+    await expect(page.getByText('保存に成功しました')).toBeVisible();
+  });
+
+  test('訪問先: 空（境界値: 最小-1）で保存不可', async ({ page }) => {
+    await page.goto('/entry');
+    await page.getByLabel('日付 *').fill('2026-03-17');
+    // 訪問先を空のまま
+    await page.getByLabel('支払先・内容 *').fill('テスト');
+
+    await page.getByRole('button', { name: '保存' }).click();
+    await expect(page.getByText('必須項目を入力してください')).toBeVisible();
+    await expect(page).toHaveURL(/\/entry/);
+  });
+
+  test('日付なしで保存不可', async ({ page }) => {
+    await page.goto('/entry');
+    await page.getByLabel('訪問先 *').fill('テスト先');
+    await page.getByLabel('支払先・内容 *').fill('テスト');
+
+    await page.getByRole('button', { name: '保存' }).click();
+    await expect(page.getByText('必須項目を入力してください')).toBeVisible();
   });
 
   test('往復チェックボックスの初期状態は未チェック', async ({ page }) => {
@@ -65,6 +97,18 @@ test.describe('経費入力ページ', () => {
     await page.getByRole('button', { name: '保存' }).click();
     await page.waitForURL('**/list**', { timeout: 15000 });
     await expect(page.getByText('仙台営業所')).toBeVisible();
+  });
+
+  // --- メモ境界値テスト ---
+  test('メモ: 空（任意項目）で保存可能', async ({ page }) => {
+    await page.goto('/entry');
+    await page.getByLabel('日付 *').fill('2026-03-17');
+    await page.getByLabel('訪問先 *').fill('メモなしテスト');
+    await page.getByLabel('支払先・内容 *').fill('バス');
+
+    await page.getByRole('button', { name: '保存' }).click();
+    await page.waitForURL('**/list**', { timeout: 15000 });
+    await expect(page.getByText('保存に成功しました')).toBeVisible();
   });
 });
 

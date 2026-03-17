@@ -10,7 +10,7 @@
 import { test as base, expect } from '@playwright/test';
 
 const TEST_EMAIL = 'e2e-test@example.com';
-const TEST_PASSWORD = 'e2e-test-password';
+const TEST_PASSWORD = 'e2e-test-password123';
 
 export const test = base.extend({
   page: async ({ page }, use) => {

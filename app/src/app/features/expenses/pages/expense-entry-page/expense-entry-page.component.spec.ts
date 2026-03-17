@@ -4,7 +4,6 @@ import { provideRouter } from '@angular/router';
 import { LoggerModule, NgxLoggerLevel } from 'ngx-logger';
 import { ExpenseSupabaseService } from '../../data/expense-supabase.service';
 import { AuthService } from '../../../../core/auth.service';
-import { ApiService } from '../../../../core/api.service';
 
 describe('ExpenseEntryPageComponent', () => {
   const mockExpenseService = {
@@ -16,13 +15,6 @@ describe('ExpenseEntryPageComponent', () => {
       payerDetail: 'JR',
       isRoundTrip: false,
     }),
-  };
-
-  const mockApiService = {
-    token: null,
-    get isAuthenticated() {
-      return false;
-    },
   };
 
   const mockAuthService = {
@@ -54,7 +46,6 @@ describe('ExpenseEntryPageComponent', () => {
         provideRouter([]),
         { provide: ExpenseSupabaseService, useValue: mockExpenseService },
         { provide: AuthService, useValue: mockAuthService },
-        { provide: ApiService, useValue: mockApiService },
       ],
     }).compileComponents();
   });

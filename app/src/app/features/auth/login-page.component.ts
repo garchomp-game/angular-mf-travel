@@ -116,13 +116,6 @@ export class LoginPageComponent {
       return;
     }
 
-    if (this.isSignUp) {
-      this.successMessage = '登録が完了しました。ログインしてください。';
-      this.isSignUp = false;
-      this.cdr.detectChanges();
-      return;
-    }
-
     this.cdr.detectChanges();
     void this.router.navigate(['/list']);
   }

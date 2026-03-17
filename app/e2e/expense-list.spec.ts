@@ -70,7 +70,7 @@ test.describe('経費一覧ページ', () => {
     // 大阪本社は往復
     await expect(page.getByText('往復').first()).toBeVisible();
     // 福岡支店は片道
-    await expect(page.getByText('片道')).toBeVisible();
+    await expect(page.getByText('片道').first()).toBeVisible();
   });
 
   test('削除: 確認ダイアログで承認後に成功メッセージ表示', async ({ page }) => {

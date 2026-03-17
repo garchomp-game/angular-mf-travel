@@ -7,7 +7,6 @@ import localeJa from '@angular/common/locales/ja';
 import { LOCALE_ID } from '@angular/core';
 import { ExpenseSupabaseService } from '../../data/expense-supabase.service';
 import { AuthService } from '../../../../core/auth.service';
-import { ApiService } from '../../../../core/api.service';
 
 registerLocaleData(localeJa);
 
@@ -30,13 +29,6 @@ describe('MonthlyListPageComponent', () => {
       },
     ]),
     remove: vi.fn().mockResolvedValue(true),
-  };
-
-  const mockApiService = {
-    token: 'test-token',
-    get isAuthenticated() {
-      return true;
-    },
   };
 
   const mockAuthService = {
@@ -69,7 +61,6 @@ describe('MonthlyListPageComponent', () => {
         { provide: LOCALE_ID, useValue: 'ja' },
         { provide: ExpenseSupabaseService, useValue: mockExpenseService },
         { provide: AuthService, useValue: mockAuthService },
-        { provide: ApiService, useValue: mockApiService },
       ],
     }).compileComponents();
   });
