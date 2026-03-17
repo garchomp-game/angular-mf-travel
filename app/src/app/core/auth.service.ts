@@ -13,6 +13,7 @@ export interface AuthUser {
 export interface AuthResult {
   success: boolean;
   error?: string;
+  needsEmailConfirmation?: boolean;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -65,6 +66,9 @@ export class AuthService {
     const { data, error } = await this.supabase.client.auth.signUp({
       email,
       password,
+      options: {
+        emailRedirectTo: window.location.origin,
+      },
     });
 
     if (error || !data.user) {
@@ -78,9 +82,13 @@ export class AuthService {
       this.zone.run(() => {
         this.userSubject.next({ id: data.user!.id, email: data.user!.email! });
       });
+      this.logger.info('[Auth] 登録成功（即時ログイン）', { userId: data.user.id });
+      return { success: true };
     }
-    this.logger.info('[Auth] 登録成功', { userId: data.user.id });
-    return { success: true };
+
+    // メール確認が必要
+    this.logger.info('[Auth] 登録成功（メール確認待ち）', { userId: data.user.id });
+    return { success: true, needsEmailConfirmation: true };
   }
 
   async signOut(): Promise<void> {

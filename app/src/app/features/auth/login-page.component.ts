@@ -116,6 +116,16 @@ export class LoginPageComponent {
       return;
     }
 
+    // メール確認が必要な場合はメッセージを表示してログインタブに切り替え
+    if (result.needsEmailConfirmation) {
+      this.successMessage =
+        '確認メールを送信しました。メール内のリンクをクリックしてからログインしてください。';
+      this.isSignUp = false;
+      this.loginForm.reset();
+      this.cdr.detectChanges();
+      return;
+    }
+
     this.cdr.detectChanges();
     void this.router.navigate(['/list']);
   }
