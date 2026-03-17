@@ -90,6 +90,24 @@ export class ExpenseSupabaseService {
     }
   }
 
+  async findDuplicate(date: string, destination: string): Promise<ExpenseRecord | undefined> {
+    try {
+      const { data, error } = await this.sb.client
+        .from('expense_records')
+        .select('*')
+        .eq('travel_date', date)
+        .eq('visit_to', destination)
+        .limit(1);
+
+      if (error) throw error;
+      if (!data || data.length === 0) return undefined;
+      return toRecord(data[0] as DbRow);
+    } catch (e) {
+      this.logger.error('[ExpenseApi] findDuplicate failed', e);
+      return undefined;
+    }
+  }
+
   async save(draft: ExpenseDraft, id?: string): Promise<ExpenseRecord | undefined> {
     const row = {
       travel_date: draft.date,

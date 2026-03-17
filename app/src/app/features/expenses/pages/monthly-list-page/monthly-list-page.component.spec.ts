@@ -136,4 +136,30 @@ describe('MonthlyListPageComponent', () => {
     fixture.componentInstance.query = '存在しない検索ワード';
     expect(fixture.componentInstance.filteredExpenses.length).toBe(0);
   });
+
+  it('should calculate round trip count', async () => {
+    const fixture = TestBed.createComponent(MonthlyListPageComponent);
+    await fixture.componentInstance.ngOnInit();
+    expect(fixture.componentInstance.roundTripCount).toBe(1);
+    expect(fixture.componentInstance.oneWayCount).toBe(1);
+  });
+
+  it('should export CSV without errors', async () => {
+    const fixture = TestBed.createComponent(MonthlyListPageComponent);
+    await fixture.componentInstance.ngOnInit();
+
+    const createSpy = vi.spyOn(URL, 'createObjectURL').mockReturnValue('blob:test');
+    const revokeSpy = vi.spyOn(URL, 'revokeObjectURL').mockImplementation(() => {});
+    const clickSpy = vi.fn();
+    vi.spyOn(document, 'createElement').mockReturnValue({
+      set href(_: string) {},
+      set download(_: string) {},
+      click: clickSpy,
+    } as unknown as HTMLAnchorElement);
+
+    fixture.componentInstance.exportCsv();
+    expect(createSpy).toHaveBeenCalled();
+    expect(clickSpy).toHaveBeenCalled();
+    expect(revokeSpy).toHaveBeenCalled();
+  });
 });

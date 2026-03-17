@@ -191,6 +191,7 @@ export class ExpenseEntryPageComponent implements OnInit {
   async ngOnInit(): Promise<void> {
     this.detailsExpanded = localStorage.getItem(DETAIL_PANEL_STORAGE_KEY) === 'true';
     this.templates = await this.templateService.list();
+    this.cdr.detectChanges();
 
     const editId = this.route.snapshot.queryParamMap.get('edit');
     if (!editId) return;
@@ -236,6 +237,20 @@ export class ExpenseEntryPageComponent implements OnInit {
       memo: this.expenseForm.controls.memo.value ?? '',
     };
 
+    // 重複チェック（新規入力のみ）
+    if (!this.editId) {
+      const duplicate = await this.expenseService.findDuplicate(payload.date, payload.destination);
+      if (duplicate) {
+        const proceed = window.confirm(
+          `${payload.date} / ${payload.destination} は既に登録されています。重複して保存しますか？`,
+        );
+        if (!proceed) {
+          this.saving = false;
+          return;
+        }
+      }
+    }
+
     const result = await this.expenseService.save(payload, this.editId ?? undefined);
     this.saving = false;
 
@@ -247,15 +262,18 @@ export class ExpenseEntryPageComponent implements OnInit {
 
     // テンプレにも保存
     if (this.saveAsTemplate && !this.editId) {
-      await this.templateService.save({
-        name: payload.destination,
-        destination: payload.destination,
-        payerDetail: payload.payerDetail,
-        isRoundTrip: payload.isRoundTrip,
-        category: payload.category,
-        taxType: payload.taxType,
-        preApprovalNumber: payload.preApprovalNumber,
-      });
+      const templateName = window.prompt('テンプレート名を入力してください', payload.destination);
+      if (templateName) {
+        await this.templateService.save({
+          name: templateName,
+          destination: payload.destination,
+          payerDetail: payload.payerDetail,
+          isRoundTrip: payload.isRoundTrip,
+          category: payload.category,
+          taxType: payload.taxType,
+          preApprovalNumber: payload.preApprovalNumber,
+        });
+      }
     }
 
     this.zone.run(() => {

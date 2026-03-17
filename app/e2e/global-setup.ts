@@ -68,6 +68,10 @@ export default async function globalSetup(config: FullConfig): Promise<void> {
 
   // --- 2. Clean ALL existing test data and seed ---
   await supabase.from('expense_records').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+  await supabase
+    .from('expense_templates')
+    .delete()
+    .neq('id', '00000000-0000-0000-0000-000000000000');
 
   // Insert seed expenses
   const { error: insertError } = await supabase

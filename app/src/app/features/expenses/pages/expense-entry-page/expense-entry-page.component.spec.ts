@@ -9,6 +9,7 @@ import { AuthService } from '../../../../core/auth.service';
 describe('ExpenseEntryPageComponent', () => {
   const mockExpenseService = {
     findById: vi.fn().mockResolvedValue(undefined),
+    findDuplicate: vi.fn().mockResolvedValue(undefined),
     save: vi.fn().mockResolvedValue({
       id: 'new-1',
       date: '2026-03-20',
@@ -41,6 +42,20 @@ describe('ExpenseEntryPageComponent', () => {
   beforeEach(async () => {
     localStorage.clear();
     vi.clearAllMocks();
+
+    // Re-apply default mock implementations after clearAllMocks
+    mockExpenseService.findById.mockResolvedValue(undefined);
+    mockExpenseService.findDuplicate.mockResolvedValue(undefined);
+    mockExpenseService.save.mockResolvedValue({
+      id: 'new-1',
+      date: '2026-03-20',
+      destination: 'テスト',
+      payerDetail: 'JR',
+      isRoundTrip: false,
+    });
+    mockTemplateService.list.mockResolvedValue([]);
+    mockTemplateService.save.mockResolvedValue({ id: 'tpl-1', name: 'テスト' });
+
     await TestBed.configureTestingModule({
       imports: [
         ExpenseEntryPageComponent,
@@ -122,5 +137,63 @@ describe('ExpenseEntryPageComponent', () => {
     });
     await fixture.componentInstance.submit();
     expect(fixture.componentInstance.errorMessage).toBeTruthy();
+  });
+
+  it('should warn on duplicate and cancel if user declines', async () => {
+    mockExpenseService.findDuplicate.mockResolvedValue({
+      id: 'dup-1',
+      date: '2026-03-20',
+      destination: 'テスト先',
+    });
+    vi.spyOn(window, 'confirm').mockReturnValue(false);
+
+    const fixture = TestBed.createComponent(ExpenseEntryPageComponent);
+    fixture.detectChanges();
+    fixture.componentInstance.expenseForm.patchValue({
+      date: '2026-03-20',
+      destination: 'テスト先',
+      payerDetail: 'JR東海',
+      isRoundTrip: false,
+    });
+    await fixture.componentInstance.submit();
+    expect(mockExpenseService.save).not.toHaveBeenCalled();
+  });
+
+  it('should proceed with duplicate when user confirms', async () => {
+    mockExpenseService.findDuplicate.mockResolvedValue({
+      id: 'dup-1',
+      date: '2026-03-20',
+      destination: 'テスト先',
+    });
+    vi.spyOn(window, 'confirm').mockReturnValue(true);
+
+    const fixture = TestBed.createComponent(ExpenseEntryPageComponent);
+    fixture.detectChanges();
+    fixture.componentInstance.expenseForm.patchValue({
+      date: '2026-03-20',
+      destination: 'テスト先',
+      payerDetail: 'JR東海',
+      isRoundTrip: false,
+    });
+    await fixture.componentInstance.submit();
+    expect(mockExpenseService.save).toHaveBeenCalled();
+  });
+
+  it('should prompt for template name when saveAsTemplate is checked', async () => {
+    vi.spyOn(window, 'prompt').mockReturnValue('カスタム名');
+    const fixture = TestBed.createComponent(ExpenseEntryPageComponent);
+    fixture.detectChanges();
+    fixture.componentInstance.saveAsTemplate = true;
+    fixture.componentInstance.expenseForm.patchValue({
+      date: '2026-03-20',
+      destination: 'テスト先',
+      payerDetail: 'JR東海',
+      isRoundTrip: false,
+    });
+    await fixture.componentInstance.submit();
+    expect(window.prompt).toHaveBeenCalled();
+    expect(mockTemplateService.save).toHaveBeenCalledWith(
+      expect.objectContaining({ name: 'カスタム名' }),
+    );
   });
 });

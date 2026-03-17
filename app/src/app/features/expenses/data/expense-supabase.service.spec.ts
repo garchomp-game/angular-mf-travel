@@ -24,6 +24,7 @@ function createChainMock(resolvedValue: { data: unknown; error: unknown }) {
     'lt',
     'order',
     'single',
+    'limit',
   ]) {
     chain[method] = vi.fn().mockReturnValue({ ...chain, ...terminal });
   }

@@ -20,8 +20,9 @@ describe('BottomNavComponent', () => {
     fixture.detectChanges();
     const el: HTMLElement = fixture.nativeElement;
     const links = el.querySelectorAll('a');
-    expect(links.length).toBe(2);
+    expect(links.length).toBe(3);
     expect(links[0].textContent).toContain('一覧');
     expect(links[1].textContent).toContain('入力');
+    expect(links[2].textContent).toContain('テンプレ');
   });
 });

@@ -48,6 +48,21 @@ const VIEW_MODE_KEY = 'expense-list-view-mode';
         />
       </app-section-card>
 
+      @if (!loading && expenses.length > 0) {
+        <app-section-card>
+          <div class="flex items-center justify-between text-sm">
+            <div class="flex gap-4">
+              <span class="font-bold">{{ expenses.length }}件</span>
+              <span class="opacity-70">往復: {{ roundTripCount }}件</span>
+              <span class="opacity-70">片道: {{ oneWayCount }}件</span>
+            </div>
+            <button type="button" (click)="exportCsv()" class="btn btn-outline btn-xs">
+              📊 CSV出力
+            </button>
+          </div>
+        </app-section-card>
+      }
+
       <app-section-card>
         <div class="flex items-center gap-2">
           <app-search-box (queryChange)="query = $event" class="flex-1" />
@@ -131,6 +146,14 @@ export class MonthlyListPageComponent implements OnInit {
     });
   }
 
+  get roundTripCount(): number {
+    return this.expenses.filter((e) => e.isRoundTrip).length;
+  }
+
+  get oneWayCount(): number {
+    return this.expenses.filter((e) => !e.isRoundTrip).length;
+  }
+
   async ngOnInit(): Promise<void> {
     this.viewMode = (localStorage.getItem(VIEW_MODE_KEY) as 'card' | 'table') || 'card';
 
@@ -196,6 +219,32 @@ export class MonthlyListPageComponent implements OnInit {
       this.notice = `テンプレート「${name}」を追加しました。`;
     }
     this.cdr.detectChanges();
+  }
+
+  exportCsv(): void {
+    const header = '日付,訪問先,支払先・内容,往復,経費科目,税区分,事前申請番号,メモ';
+    const rows = this.expenses.map((e) =>
+      [
+        e.date,
+        e.destination,
+        e.payerDetail,
+        e.isRoundTrip ? '往復' : '片道',
+        e.category ?? '',
+        e.taxType ?? '',
+        e.preApprovalNumber ?? '',
+        (e.memo ?? '').replace(/[\r\n]+/g, ' '),
+      ]
+        .map((v) => `"${v.replace(/"/g, '""')}"`)
+        .join(','),
+    );
+    const csv = '\uFEFF' + [header, ...rows].join('\n');
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `経費_${this.currentMonth}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
   }
 
   async logout(): Promise<void> {
