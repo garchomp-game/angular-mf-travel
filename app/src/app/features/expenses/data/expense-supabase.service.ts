@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { ApiService } from '../../../core/api.service';
+import { SupabaseService } from '../../../core/supabase.service';
 import { LoggerService } from '../../../core/logger.service';
 
 export interface ExpenseRecord {
@@ -16,25 +16,58 @@ export interface ExpenseRecord {
 
 export type ExpenseDraft = Omit<ExpenseRecord, 'id'>;
 
-interface ExpenseListResponse {
-  data: ExpenseRecord[];
+interface DbRow {
+  id: string;
+  travel_date: string;
+  visit_to: string;
+  route_text: string;
+  is_round_trip: boolean;
+  category_code: string;
+  tax_code: string;
+  pre_approval_no: string | null;
+  memo: string | null;
 }
 
-interface ExpenseResponse {
-  data: ExpenseRecord;
+function toRecord(row: DbRow): ExpenseRecord {
+  return {
+    id: row.id,
+    date: row.travel_date,
+    destination: row.visit_to,
+    payerDetail: row.route_text,
+    isRoundTrip: row.is_round_trip ?? false,
+    category: row.category_code || undefined,
+    taxType: row.tax_code || undefined,
+    preApprovalNumber: row.pre_approval_no || undefined,
+    memo: row.memo || undefined,
+  };
 }
 
 @Injectable({ providedIn: 'root' })
 export class ExpenseSupabaseService {
-  private readonly api = inject(ApiService);
+  private readonly sb = inject(SupabaseService);
   private readonly logger = inject(LoggerService);
 
   async listByMonth(monthLabel: string): Promise<ExpenseRecord[]> {
+    const match = monthLabel.match(/(\d{4})年(\d{2})月/);
+    if (!match) return [];
+
+    const year = Number(match[1]);
+    const month = Number(match[2]);
+    const start = `${year}-${String(month).padStart(2, '0')}-01`;
+    const nextMonth = month === 12 ? 1 : month + 1;
+    const nextYear = month === 12 ? year + 1 : year;
+    const end = `${nextYear}-${String(nextMonth).padStart(2, '0')}-01`;
+
     try {
-      const res = await this.api.get<ExpenseListResponse>(
-        `/expenses?month=${encodeURIComponent(monthLabel)}`,
-      );
-      return res.data;
+      const { data, error } = await this.sb.client
+        .from('expense_records')
+        .select('*')
+        .gte('travel_date', start)
+        .lt('travel_date', end)
+        .order('travel_date', { ascending: false });
+
+      if (error) throw error;
+      return (data as DbRow[]).map(toRecord);
     } catch (e) {
       this.logger.error('[ExpenseApi] listByMonth failed', e);
       return [];
@@ -43,8 +76,14 @@ export class ExpenseSupabaseService {
 
   async findById(id: string): Promise<ExpenseRecord | undefined> {
     try {
-      const res = await this.api.get<ExpenseResponse>(`/expenses/${id}`);
-      return res.data;
+      const { data, error } = await this.sb.client
+        .from('expense_records')
+        .select('*')
+        .eq('id', id)
+        .single();
+
+      if (error) throw error;
+      return toRecord(data as DbRow);
     } catch (e) {
       this.logger.error('[ExpenseApi] findById failed', { id, error: e });
       return undefined;
@@ -52,16 +91,42 @@ export class ExpenseSupabaseService {
   }
 
   async save(draft: ExpenseDraft, id?: string): Promise<ExpenseRecord | undefined> {
+    const row = {
+      travel_date: draft.date,
+      visit_to: draft.destination,
+      route_text: draft.payerDetail,
+      is_round_trip: draft.isRoundTrip,
+      category_code: draft.category ?? '',
+      tax_code: draft.taxType ?? '',
+      pre_approval_no: draft.preApprovalNumber ?? null,
+      memo: draft.memo ?? null,
+    };
+
     try {
       if (id) {
-        const res = await this.api.put<ExpenseResponse>(`/expenses/${id}`, draft);
+        const { data, error } = await this.sb.client
+          .from('expense_records')
+          .update(row)
+          .eq('id', id)
+          .select()
+          .single();
+
+        if (error) throw error;
         this.logger.info('[ExpenseApi] 更新成功', { id });
-        return res.data;
+        return toRecord(data as DbRow);
       }
 
-      const res = await this.api.post<ExpenseResponse>('/expenses', draft);
-      this.logger.info('[ExpenseApi] 作成成功', { id: res.data.id });
-      return res.data;
+      // user_id is set automatically by RLS — Supabase infers from auth.uid()
+      const { data: { user } } = await this.sb.client.auth.getUser();
+      const { data, error } = await this.sb.client
+        .from('expense_records')
+        .insert({ ...row, user_id: user!.id })
+        .select()
+        .single();
+
+      if (error) throw error;
+      this.logger.info('[ExpenseApi] 作成成功', { id: data.id });
+      return toRecord(data as DbRow);
     } catch (e) {
       this.logger.error('[ExpenseApi] save failed', e);
       return undefined;
@@ -70,7 +135,12 @@ export class ExpenseSupabaseService {
 
   async remove(id: string): Promise<boolean> {
     try {
-      await this.api.delete(`/expenses/${id}`);
+      const { error } = await this.sb.client
+        .from('expense_records')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
       this.logger.info('[ExpenseApi] 削除成功', { id });
       return true;
     } catch (e) {

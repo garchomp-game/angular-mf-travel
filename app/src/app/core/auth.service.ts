@@ -2,7 +2,7 @@ import { Injectable, inject, NgZone } from '@angular/core';
 import { Router } from '@angular/router';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { ApiService } from './api.service';
+import { SupabaseService } from './supabase.service';
 import { LoggerService } from './logger.service';
 
 export interface AuthUser {
@@ -15,17 +15,12 @@ export interface AuthResult {
   error?: string;
 }
 
-interface AuthResponse {
-  token: string;
-  user: AuthUser;
-}
-
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private readonly logger = inject(LoggerService);
   private readonly router = inject(Router);
   private readonly zone = inject(NgZone);
-  private readonly api = inject(ApiService);
+  private readonly supabase = inject(SupabaseService);
 
   private readonly userSubject = new BehaviorSubject<AuthUser | null>(null);
   private readonly readySubject = new BehaviorSubject<boolean>(false);
@@ -47,41 +42,45 @@ export class AuthService {
   }
 
   async signIn(email: string, password: string): Promise<AuthResult> {
-    try {
-      const res = await this.api.post<AuthResponse>('/auth/login', {
-        email,
-        password,
-      });
-      this.api.token = res.token;
-      this.userSubject.next(res.user);
-      this.logger.info('[Auth] ログイン成功', { userId: res.user.id });
-      return { success: true };
-    } catch (e) {
-      const message = e instanceof Error ? e.message : 'ログインに失敗しました';
+    const { data, error } = await this.supabase.client.auth.signInWithPassword({
+      email,
+      password,
+    });
+
+    if (error || !data.user) {
+      const message = error?.message ?? 'ログインに失敗しました';
       this.logger.warn('[Auth] ログイン失敗', { email, error: message });
       return { success: false, error: message };
     }
+
+    this.zone.run(() => {
+      this.userSubject.next({ id: data.user.id, email: data.user.email! });
+    });
+    this.logger.info('[Auth] ログイン成功', { userId: data.user.id });
+    return { success: true };
   }
 
   async signUp(email: string, password: string): Promise<AuthResult> {
-    try {
-      const res = await this.api.post<AuthResponse>('/auth/register', {
-        email,
-        password,
-      });
-      this.api.token = res.token;
-      this.userSubject.next(res.user);
-      this.logger.info('[Auth] 登録成功', { userId: res.user.id });
-      return { success: true };
-    } catch (e) {
-      const message = e instanceof Error ? e.message : '登録に失敗しました';
+    const { data, error } = await this.supabase.client.auth.signUp({
+      email,
+      password,
+    });
+
+    if (error || !data.user) {
+      const message = error?.message ?? '登録に失敗しました';
       this.logger.warn('[Auth] 登録失敗', { email, error: message });
       return { success: false, error: message };
     }
+
+    this.zone.run(() => {
+      this.userSubject.next({ id: data.user!.id, email: data.user!.email! });
+    });
+    this.logger.info('[Auth] 登録成功', { userId: data.user.id });
+    return { success: true };
   }
 
   async signOut(): Promise<void> {
-    this.api.token = null;
+    await this.supabase.client.auth.signOut();
     this.zone.run(() => {
       this.userSubject.next(null);
       this.logger.info('[Auth] ログアウト');
@@ -89,22 +88,33 @@ export class AuthService {
     });
   }
 
-  private initAuthState(): void {
-    // If we have a stored token, decode user info from JWT payload
-    const token = this.api.token;
-    if (token) {
-      try {
-        const payload = JSON.parse(atob(token.split('.')[1]));
-        // Check expiry
-        if (payload.exp && payload.exp * 1000 > Date.now()) {
-          this.userSubject.next({ id: payload.sub, email: payload.email });
-        } else {
-          this.api.token = null;
-        }
-      } catch {
-        this.api.token = null;
-      }
+  private async initAuthState(): Promise<void> {
+    // Check existing session
+    const {
+      data: { session },
+    } = await this.supabase.client.auth.getSession();
+
+    if (session?.user) {
+      this.userSubject.next({
+        id: session.user.id,
+        email: session.user.email!,
+      });
     }
+
     this.readySubject.next(true);
+
+    // Listen for auth state changes
+    this.supabase.client.auth.onAuthStateChange((_event, session) => {
+      this.zone.run(() => {
+        if (session?.user) {
+          this.userSubject.next({
+            id: session.user.id,
+            email: session.user.email!,
+          });
+        } else {
+          this.userSubject.next(null);
+        }
+      });
+    });
   }
 }

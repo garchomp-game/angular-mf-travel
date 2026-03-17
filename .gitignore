@@ -2,3 +2,5 @@ node_modules/
 bun.lock
 .vercel
 server/dist/
+reference/llms/supabase-guides.txt
+reference/llms/supabase-cli.txt

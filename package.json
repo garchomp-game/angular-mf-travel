@@ -2,23 +2,10 @@
   "name": "angular-mf-travel",
   "private": true,
   "scripts": {
-    "check": "concurrently -g 'bun:check:server' 'bun:check:app'",
-    "check:server": "cd server && bun run check",
-    "check:app": "cd app && bun run check",
-    "dev": "concurrently -n server,app -c blue,green 'cd server && bun run dev' 'cd app && bun run start'"
+    "check": "cd app && bun run check",
+    "dev": "cd app && bun run start"
   },
   "devDependencies": {
-    "concurrently": "^9.2.1",
-    "esbuild": "^0.27.4"
-  },
-  "dependencies": {
-    "@hono/zod-validator": "^0.7.6",
-    "@libsql/client": "^0.17.0",
-    "@types/bcryptjs": "^3.0.0",
-    "@types/node": "^25.5.0",
-    "bcryptjs": "^3.0.3",
-    "drizzle-orm": "^0.45.1",
-    "hono": "^4.12.8",
-    "zod": "^4.3.6"
+    "concurrently": "^9.2.1"
   }
 }
