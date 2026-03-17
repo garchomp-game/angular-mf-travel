@@ -3,6 +3,7 @@ import { ExpenseEntryPageComponent } from './expense-entry-page.component';
 import { provideRouter } from '@angular/router';
 import { LoggerModule, NgxLoggerLevel } from 'ngx-logger';
 import { ExpenseSupabaseService } from '../../data/expense-supabase.service';
+import { ExpenseTemplateService } from '../../data/expense-template.service';
 import { AuthService } from '../../../../core/auth.service';
 
 describe('ExpenseEntryPageComponent', () => {
@@ -15,6 +16,12 @@ describe('ExpenseEntryPageComponent', () => {
       payerDetail: 'JR',
       isRoundTrip: false,
     }),
+  };
+
+  const mockTemplateService = {
+    list: vi.fn().mockResolvedValue([]),
+    save: vi.fn().mockResolvedValue({ id: 'tpl-1', name: 'テスト' }),
+    remove: vi.fn().mockResolvedValue(true),
   };
 
   const mockAuthService = {
@@ -45,6 +52,7 @@ describe('ExpenseEntryPageComponent', () => {
       providers: [
         provideRouter([]),
         { provide: ExpenseSupabaseService, useValue: mockExpenseService },
+        { provide: ExpenseTemplateService, useValue: mockTemplateService },
         { provide: AuthService, useValue: mockAuthService },
       ],
     }).compileComponents();

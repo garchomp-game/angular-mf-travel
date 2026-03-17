@@ -25,6 +25,14 @@ import { ExpenseRecord } from '../../data/expense-supabase.service';
           {{ expense.category }}
         </small>
         <div class="card-actions justify-end mt-2">
+          <button
+            type="button"
+            (click)="templateClick.emit(expense.id)"
+            class="btn btn-ghost btn-xs"
+            title="テンプレートに追加"
+          >
+            📋
+          </button>
           <button type="button" (click)="editClick.emit(expense.id)" class="btn btn-outline btn-xs">
             編集
           </button>
@@ -44,4 +52,5 @@ export class ExpenseCardComponent {
   @Input({ required: true }) expense!: ExpenseRecord;
   @Output() readonly editClick = new EventEmitter<string>();
   @Output() readonly deleteClick = new EventEmitter<string>();
+  @Output() readonly templateClick = new EventEmitter<string>();
 }

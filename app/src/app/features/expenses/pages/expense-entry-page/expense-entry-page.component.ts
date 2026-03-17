@@ -1,8 +1,9 @@
 import { CommonModule } from '@angular/common';
 import { ChangeDetectorRef, Component, NgZone, OnInit, inject } from '@angular/core';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ExpenseSupabaseService } from '../../data/expense-supabase.service';
+import { ExpenseTemplate, ExpenseTemplateService } from '../../data/expense-template.service';
 import { BottomNavComponent } from '../../components/bottom-nav/bottom-nav.component';
 import { SectionCardComponent } from '../../components/section-card/section-card.component';
 import { ThemeToggleComponent } from '../../components/theme-toggle/theme-toggle.component';
@@ -15,6 +16,7 @@ const DETAIL_PANEL_STORAGE_KEY = 'expense-entry-details-expanded';
   imports: [
     CommonModule,
     ReactiveFormsModule,
+    FormsModule,
     SectionCardComponent,
     BottomNavComponent,
     ThemeToggleComponent,
@@ -35,6 +37,19 @@ const DETAIL_PANEL_STORAGE_KEY = 'expense-entry-details-expanded';
 
       <app-section-card>
         <form [formGroup]="expenseForm" (ngSubmit)="submit()" class="grid gap-4">
+          <!-- テンプレート選択 -->
+          @if (templates.length > 0 && !editId) {
+            <select
+              class="select select-bordered w-full"
+              (change)="applyTemplate($event)"
+              [value]="''"
+            >
+              <option value="" disabled selected>📋 テンプレートから入力...</option>
+              @for (tpl of templates; track tpl.id) {
+                <option [value]="tpl.id">{{ tpl.name }}</option>
+              }
+            </select>
+          }
           <label class="floating-label">
             <span>日付 *</span>
             <input type="date" formControlName="date" class="input input-bordered w-full" />
@@ -123,6 +138,18 @@ const DETAIL_PANEL_STORAGE_KEY = 'expense-entry-details-expanded';
             {{ errorMessage }}
           </p>
 
+          @if (!editId) {
+            <label class="label cursor-pointer justify-start gap-3">
+              <input
+                type="checkbox"
+                [(ngModel)]="saveAsTemplate"
+                [ngModelOptions]="{ standalone: true }"
+                class="checkbox checkbox-secondary checkbox-sm"
+              />
+              <span class="label-text">テンプレにも保存</span>
+            </label>
+          }
+
           <button type="submit" [disabled]="saving" class="btn btn-primary btn-lg w-full">
             {{ saving ? '保存中...' : editId ? '更新' : '保存' }}
           </button>
@@ -138,6 +165,7 @@ export class ExpenseEntryPageComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly expenseService = inject(ExpenseSupabaseService);
+  private readonly templateService = inject(ExpenseTemplateService);
   private readonly auth = inject(AuthService);
   private readonly cdr = inject(ChangeDetectorRef);
   private readonly zone = inject(NgZone);
@@ -146,6 +174,8 @@ export class ExpenseEntryPageComponent implements OnInit {
   editId: string | null = null;
   saving = false;
   errorMessage = '';
+  saveAsTemplate = false;
+  templates: ExpenseTemplate[] = [];
 
   readonly expenseForm = this.fb.group({
     date: ['', Validators.required],
@@ -160,6 +190,7 @@ export class ExpenseEntryPageComponent implements OnInit {
 
   async ngOnInit(): Promise<void> {
     this.detailsExpanded = localStorage.getItem(DETAIL_PANEL_STORAGE_KEY) === 'true';
+    this.templates = await this.templateService.list();
 
     const editId = this.route.snapshot.queryParamMap.get('edit');
     if (!editId) return;
@@ -214,6 +245,19 @@ export class ExpenseEntryPageComponent implements OnInit {
       return;
     }
 
+    // テンプレにも保存
+    if (this.saveAsTemplate && !this.editId) {
+      await this.templateService.save({
+        name: payload.destination,
+        destination: payload.destination,
+        payerDetail: payload.payerDetail,
+        isRoundTrip: payload.isRoundTrip,
+        category: payload.category,
+        taxType: payload.taxType,
+        preApprovalNumber: payload.preApprovalNumber,
+      });
+    }
+
     this.zone.run(() => {
       this.saving = false;
       this.cdr.detectChanges();
@@ -225,5 +269,25 @@ export class ExpenseEntryPageComponent implements OnInit {
 
   async logout(): Promise<void> {
     await this.auth.signOut();
+  }
+
+  applyTemplate(event: Event): void {
+    const select = event.target as HTMLSelectElement;
+    const tpl = this.templates.find((t) => t.id === select.value);
+    if (!tpl) return;
+
+    this.expenseForm.patchValue({
+      destination: tpl.destination,
+      payerDetail: tpl.payerDetail,
+      isRoundTrip: tpl.isRoundTrip,
+      category: tpl.category ?? '',
+      taxType: tpl.taxType ?? '',
+      preApprovalNumber: tpl.preApprovalNumber ?? '',
+    });
+    if (tpl.category || tpl.taxType || tpl.preApprovalNumber) {
+      this.detailsExpanded = true;
+    }
+    this.cdr.detectChanges();
+    select.value = '';
   }
 }

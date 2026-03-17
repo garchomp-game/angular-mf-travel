@@ -9,6 +9,7 @@ import { SearchBoxComponent } from '../../components/search-box/search-box.compo
 import { SectionCardComponent } from '../../components/section-card/section-card.component';
 import { ThemeToggleComponent } from '../../components/theme-toggle/theme-toggle.component';
 import { ExpenseRecord, ExpenseSupabaseService } from '../../data/expense-supabase.service';
+import { ExpenseTemplateService } from '../../data/expense-template.service';
 import { AuthService } from '../../../../core/auth.service';
 
 const VIEW_MODE_KEY = 'expense-list-view-mode';
@@ -84,6 +85,7 @@ const VIEW_MODE_KEY = 'expense-list-view-mode';
                   [expense]="expense"
                   (editClick)="edit($event)"
                   (deleteClick)="remove($event)"
+                  (templateClick)="addToTemplate($event)"
                 />
               </div>
             }
@@ -101,6 +103,7 @@ const VIEW_MODE_KEY = 'expense-list-view-mode';
 })
 export class MonthlyListPageComponent implements OnInit {
   private readonly expenseService = inject(ExpenseSupabaseService);
+  private readonly templateService = inject(ExpenseTemplateService);
   private readonly auth = inject(AuthService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
@@ -168,6 +171,29 @@ export class MonthlyListPageComponent implements OnInit {
     if (success) {
       this.notice = '削除に成功しました。';
       await this.loadExpenses();
+    }
+    this.cdr.detectChanges();
+  }
+
+  async addToTemplate(id: string): Promise<void> {
+    const expense = this.expenses.find((e) => e.id === id);
+    if (!expense) return;
+
+    const name = window.prompt('テンプレート名を入力してください', expense.destination);
+    if (!name) return;
+
+    const result = await this.templateService.save({
+      name,
+      destination: expense.destination,
+      payerDetail: expense.payerDetail,
+      isRoundTrip: expense.isRoundTrip,
+      category: expense.category,
+      taxType: expense.taxType,
+      preApprovalNumber: expense.preApprovalNumber,
+    });
+
+    if (result) {
+      this.notice = `テンプレート「${name}」を追加しました。`;
     }
     this.cdr.detectChanges();
   }

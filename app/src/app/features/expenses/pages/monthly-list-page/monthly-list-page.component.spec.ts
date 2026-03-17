@@ -6,6 +6,7 @@ import { registerLocaleData } from '@angular/common';
 import localeJa from '@angular/common/locales/ja';
 import { LOCALE_ID } from '@angular/core';
 import { ExpenseSupabaseService } from '../../data/expense-supabase.service';
+import { ExpenseTemplateService } from '../../data/expense-template.service';
 import { AuthService } from '../../../../core/auth.service';
 
 registerLocaleData(localeJa);
@@ -28,6 +29,12 @@ describe('MonthlyListPageComponent', () => {
         isRoundTrip: false,
       },
     ]),
+    remove: vi.fn().mockResolvedValue(true),
+  };
+
+  const mockTemplateService = {
+    list: vi.fn().mockResolvedValue([]),
+    save: vi.fn().mockResolvedValue({ id: 'tpl-1', name: 'テスト' }),
     remove: vi.fn().mockResolvedValue(true),
   };
 
@@ -60,6 +67,7 @@ describe('MonthlyListPageComponent', () => {
         provideRouter([]),
         { provide: LOCALE_ID, useValue: 'ja' },
         { provide: ExpenseSupabaseService, useValue: mockExpenseService },
+        { provide: ExpenseTemplateService, useValue: mockTemplateService },
         { provide: AuthService, useValue: mockAuthService },
       ],
     }).compileComponents();
