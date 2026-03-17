@@ -270,4 +270,62 @@ describe('ExpenseSupabaseService', () => {
 
     expect(result).toBeUndefined();
   });
+
+  // ── findDuplicate ──
+
+  it('should find a duplicate record when one exists', async () => {
+    const dupRow = {
+      id: 'dup-1',
+      travel_date: '2026-03-20',
+      visit_to: '大阪本社',
+      route_text: 'JR東海',
+      is_round_trip: true,
+      category_code: '',
+      tax_code: '',
+      pre_approval_no: null,
+      memo: null,
+    };
+    const dupChain = createChainMock({ data: [dupRow], error: null });
+    mockSupabaseService.client.from.mockReturnValue(dupChain);
+
+    const service = TestBed.inject(ExpenseSupabaseService);
+    const result = await service.findDuplicate('2026-03-20', '大阪本社');
+
+    expect(result).toBeDefined();
+    expect(result?.destination).toBe('大阪本社');
+  });
+
+  it('should return undefined when no duplicate exists', async () => {
+    const emptyChain = createChainMock({ data: [], error: null });
+    mockSupabaseService.client.from.mockReturnValue(emptyChain);
+
+    const service = TestBed.inject(ExpenseSupabaseService);
+    const result = await service.findDuplicate('2026-03-20', '存在しない');
+
+    expect(result).toBeUndefined();
+  });
+
+  it('should return undefined on findDuplicate error', async () => {
+    const errorChain = createChainMock({ data: null, error: { message: 'query error' } });
+    mockSupabaseService.client.from.mockReturnValue(errorChain);
+
+    const service = TestBed.inject(ExpenseSupabaseService);
+    const result = await service.findDuplicate('2026-03-20', '失敗テスト');
+
+    expect(result).toBeUndefined();
+  });
+
+  // ── listByMonth 境界値: 12月→1月 年越し ──
+
+  it('should handle December correctly (year rollover to January)', async () => {
+    const decChain = createChainMock({ data: [], error: null });
+    mockSupabaseService.client.from.mockReturnValue(decChain);
+
+    const service = TestBed.inject(ExpenseSupabaseService);
+    await service.listByMonth('2026年12月');
+
+    // gte('travel_date', '2026-12-01') + lt('travel_date', '2027-01-01')
+    expect(decChain['gte']).toHaveBeenCalledWith('travel_date', '2026-12-01');
+    expect(decChain['lt']).toHaveBeenCalledWith('travel_date', '2027-01-01');
+  });
 });
