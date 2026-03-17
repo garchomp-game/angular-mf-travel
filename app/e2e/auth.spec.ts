@@ -34,8 +34,9 @@ test.describe('認証フロー', () => {
     const password = 'testpass123';
     await supabase.auth.admin.createUser({ email, password, email_confirm: true });
 
-    // ブラウザでログイン
+    // ブラウザでログイン（ローカル GoTrue の場合、登録直後にわずかな遅延が必要な場合がある）
     await page.goto('/login');
+    await page.waitForTimeout(500);
     await page.getByPlaceholder('user@example.com').fill(email);
     await page.getByPlaceholder('6文字以上').fill(password);
     await page.locator('form').getByRole('button', { name: 'ログイン' }).click();
@@ -120,6 +121,13 @@ test.describe('認証フロー', () => {
   // --- 処理中状態テスト ---
   test('ログインボタンが処理中に「処理中...」と表示される', async ({ page }) => {
     await page.goto('/login');
+
+    // Supabase auth API にルート遅延を挿入（ローカル/クラウド問わず確実に loading 表示）
+    await page.route('**/auth/v1/token**', async (route) => {
+      await new Promise((r) => setTimeout(r, 1000));
+      await route.continue();
+    });
+
     await page.getByPlaceholder('user@example.com').fill('slow@example.com');
     await page.getByPlaceholder('6文字以上').fill('validpassword');
 

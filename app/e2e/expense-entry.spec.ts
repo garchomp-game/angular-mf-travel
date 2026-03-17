@@ -16,7 +16,7 @@ test.describe('経費入力ページ', () => {
     await page.getByRole('button', { name: '保存' }).click();
     await page.waitForURL('**/list**', { timeout: 15000 });
     await expect(page.getByText('保存に成功しました')).toBeVisible();
-    await expect(page.getByText('札幌支社')).toBeVisible();
+    await expect(page.getByText('札幌支社').first()).toBeVisible();
   });
 
   test('必須項目未入力で保存されない', async ({ page }) => {
@@ -96,7 +96,7 @@ test.describe('経費入力ページ', () => {
 
     await page.getByRole('button', { name: '保存' }).click();
     await page.waitForURL('**/list**', { timeout: 15000 });
-    await expect(page.getByText('仙台営業所')).toBeVisible();
+    await expect(page.getByText('仙台営業所').first()).toBeVisible();
   });
 
   // --- メモ境界値テスト ---
@@ -144,6 +144,6 @@ test.describe('経費編集ページ', () => {
     await page.getByRole('button', { name: '更新' }).click();
     await page.waitForURL('**/list**', { timeout: 15000 });
     await expect(page.getByText('編集に成功しました')).toBeVisible();
-    await expect(page.getByText('更新済テスト')).toBeVisible();
+    await expect(page.getByText('更新済テスト').first()).toBeVisible();
   });
 });

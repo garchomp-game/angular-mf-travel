@@ -1,6 +1,6 @@
 export const environment = {
   production: false,
-  supabaseUrl: 'https://sbjxnwakufmfzpnkcmwz.supabase.co',
+  supabaseUrl: 'http://127.0.0.1:54321',
   supabaseAnonKey:
-    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNianhud2FrdWZtZnpwbmtjbXd6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM3MDYxMzEsImV4cCI6MjA4OTI4MjEzMX0.IzKhlKbnqeyT63pLp_xd5cp3QCJkcVWpSR6uGQlmCYw',
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0',
 };

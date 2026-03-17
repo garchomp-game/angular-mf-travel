@@ -59,4 +59,84 @@ describe('LoginPageComponent', () => {
     await fixture.componentInstance.submit();
     expect(mockAuthService.signUp).toHaveBeenCalledWith('new@example.com', 'password123');
   });
+
+  it('should display error message on signIn failure', async () => {
+    mockAuthService.signIn.mockResolvedValue({ success: false, error: 'Invalid credentials' });
+    const fixture = TestBed.createComponent(LoginPageComponent);
+    fixture.detectChanges();
+    fixture.componentInstance.loginForm.patchValue({
+      email: 'test@example.com',
+      password: 'wrongpass',
+    });
+    await fixture.componentInstance.submit();
+    expect(fixture.componentInstance.errorMessage).toBe('Invalid credentials');
+  });
+
+  it('should show confirmation message on signUp with needsEmailConfirmation', async () => {
+    mockAuthService.signUp.mockResolvedValue({ success: true, needsEmailConfirmation: true });
+    const fixture = TestBed.createComponent(LoginPageComponent);
+    fixture.detectChanges();
+    fixture.componentInstance.isSignUp = true;
+    fixture.componentInstance.loginForm.patchValue({
+      email: 'new@example.com',
+      password: 'password123',
+    });
+    await fixture.componentInstance.submit();
+
+    expect(fixture.componentInstance.successMessage).toContain('確認メール');
+    expect(fixture.componentInstance.isSignUp).toBe(false);
+  });
+
+  it('should set loading = true during submit', async () => {
+    let loadingDuringCall = false;
+    mockAuthService.signIn.mockImplementation(async () => {
+      loadingDuringCall = fixture.componentInstance.loading;
+      return { success: true };
+    });
+
+    const fixture = TestBed.createComponent(LoginPageComponent);
+    fixture.detectChanges();
+    fixture.componentInstance.loginForm.patchValue({
+      email: 'test@example.com',
+      password: 'password123',
+    });
+    await fixture.componentInstance.submit();
+    expect(loadingDuringCall).toBe(true);
+    expect(fixture.componentInstance.loading).toBe(false);
+  });
+
+  it('should reject invalid email format', async () => {
+    const fixture = TestBed.createComponent(LoginPageComponent);
+    fixture.detectChanges();
+    fixture.componentInstance.loginForm.patchValue({
+      email: 'not-an-email',
+      password: 'password123',
+    });
+    await fixture.componentInstance.submit();
+    expect(fixture.componentInstance.errorMessage).toBeTruthy();
+    expect(mockAuthService.signIn).not.toHaveBeenCalled();
+  });
+
+  it('should reject password with 5 chars (boundary: min-1)', async () => {
+    const fixture = TestBed.createComponent(LoginPageComponent);
+    fixture.detectChanges();
+    fixture.componentInstance.loginForm.patchValue({
+      email: 'test@example.com',
+      password: '12345',
+    });
+    await fixture.componentInstance.submit();
+    expect(fixture.componentInstance.errorMessage).toBeTruthy();
+    expect(mockAuthService.signIn).not.toHaveBeenCalled();
+  });
+
+  it('should accept password with 6 chars (boundary: min)', async () => {
+    const fixture = TestBed.createComponent(LoginPageComponent);
+    fixture.detectChanges();
+    fixture.componentInstance.loginForm.patchValue({
+      email: 'test@example.com',
+      password: '123456',
+    });
+    await fixture.componentInstance.submit();
+    expect(mockAuthService.signIn).toHaveBeenCalled();
+  });
 });

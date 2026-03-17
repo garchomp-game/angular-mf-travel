@@ -88,4 +88,31 @@ describe('ExpenseEntryPageComponent', () => {
     fixture.componentInstance.toggleDetails();
     expect(fixture.componentInstance.detailsExpanded).toBe(true);
   });
+
+  it('should call save with valid form data', async () => {
+    const fixture = TestBed.createComponent(ExpenseEntryPageComponent);
+    fixture.detectChanges();
+    fixture.componentInstance.expenseForm.patchValue({
+      date: '2026-03-20',
+      destination: 'テスト先',
+      payerDetail: 'JR東海',
+      isRoundTrip: true,
+    });
+    await fixture.componentInstance.submit();
+    expect(mockExpenseService.save).toHaveBeenCalled();
+  });
+
+  it('should show error message when save fails', async () => {
+    mockExpenseService.save.mockResolvedValue(undefined);
+    const fixture = TestBed.createComponent(ExpenseEntryPageComponent);
+    fixture.detectChanges();
+    fixture.componentInstance.expenseForm.patchValue({
+      date: '2026-03-20',
+      destination: 'テスト先',
+      payerDetail: 'JR東海',
+      isRoundTrip: false,
+    });
+    await fixture.componentInstance.submit();
+    expect(fixture.componentInstance.errorMessage).toBeTruthy();
+  });
 });

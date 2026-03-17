@@ -46,42 +46,28 @@ export default async function globalSetup(config: FullConfig): Promise<void> {
     auth: { autoRefreshToken: false, persistSession: false },
   });
 
-  // --- 0. Clean up old e2e-auth-* test users from previous runs ---
+  // --- 0. Clean up ALL test users ---
   const { data: allUsers } = await supabase.auth.admin.listUsers();
   if (allUsers?.users) {
     for (const u of allUsers.users) {
-      if (u.email?.startsWith('e2e-auth-')) {
+      // e2e-auth-* users from signup test + main test user (recreate fresh)
+      if (u.email?.startsWith('e2e-auth-') || u.email === TEST_EMAIL) {
         await supabase.auth.admin.deleteUser(u.id);
       }
     }
   }
 
-  // --- 1. Create or find test user ---
-  let userId: string;
+  // --- 1. Create test user fresh (avoid stale password hash) ---
+  const { data: newUser, error } = await supabase.auth.admin.createUser({
+    email: TEST_EMAIL,
+    password: TEST_PASSWORD,
+    email_confirm: true,
+  });
+  if (error) throw new Error(`Failed to create test user: ${error.message}`);
+  const userId = newUser.user.id;
 
-  // Try to find existing user
-  const { data: existingUsers } = await supabase.auth.admin.listUsers();
-  const existing = existingUsers?.users?.find((u) => u.email === TEST_EMAIL);
-
-  if (existing) {
-    userId = existing.id;
-    // Ensure email is confirmed
-    await supabase.auth.admin.updateUserById(userId, {
-      email_confirm: true,
-    });
-  } else {
-    const { data: newUser, error } = await supabase.auth.admin.createUser({
-      email: TEST_EMAIL,
-      password: TEST_PASSWORD,
-      email_confirm: true,
-    });
-    if (error) throw new Error(`Failed to create test user: ${error.message}`);
-    userId = newUser.user.id;
-  }
-
-  // --- 2. Clean existing test data and seed ---
-  // Delete all expense_records for this user
-  await supabase.from('expense_records').delete().eq('user_id', userId);
+  // --- 2. Clean ALL existing test data and seed ---
+  await supabase.from('expense_records').delete().neq('id', '00000000-0000-0000-0000-000000000000');
 
   // Insert seed expenses
   const { error: insertError } = await supabase

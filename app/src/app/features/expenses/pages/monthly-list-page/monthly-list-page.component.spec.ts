@@ -108,4 +108,24 @@ describe('MonthlyListPageComponent', () => {
     expect(fixture.componentInstance.viewMode).toBe('table');
     expect(localStorage.getItem('expense-list-view-mode')).toBe('table');
   });
+
+  it('should remove expense and reload list', async () => {
+    vi.spyOn(window, 'confirm').mockReturnValue(true);
+    const fixture = TestBed.createComponent(MonthlyListPageComponent);
+    await fixture.componentInstance.ngOnInit();
+    fixture.detectChanges();
+
+    const callsBefore = mockExpenseService.listByMonth.mock.calls.length;
+    await fixture.componentInstance.remove('1');
+    expect(mockExpenseService.remove).toHaveBeenCalledWith('1');
+    // After remove, listByMonth should be called once more to reload
+    expect(mockExpenseService.listByMonth.mock.calls.length).toBe(callsBefore + 1);
+  });
+
+  it('should show empty filtered list when no match', async () => {
+    const fixture = TestBed.createComponent(MonthlyListPageComponent);
+    await fixture.componentInstance.ngOnInit();
+    fixture.componentInstance.query = '存在しない検索ワード';
+    expect(fixture.componentInstance.filteredExpenses.length).toBe(0);
+  });
 });
