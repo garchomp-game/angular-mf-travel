@@ -27,6 +27,7 @@
     "@angular/forms": "^21.2.0",
     "@angular/platform-browser": "^21.2.0",
     "@angular/router": "^21.2.0",
+    "@angular/service-worker": "^21.2.0",
     "@supabase/supabase-js": "^2.99.2",
     "@tailwindcss/postcss": "^4.2.1",
     "debug": "^4.4.3",
