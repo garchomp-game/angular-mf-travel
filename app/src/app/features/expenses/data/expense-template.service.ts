@@ -17,7 +17,7 @@ export type TemplateDraft = Omit<ExpenseTemplate, 'id'>;
 
 interface DbRow {
   id: string;
-  name: string;
+  template_name: string;
   visit_to: string;
   route_text: string;
   is_round_trip: boolean;
@@ -29,7 +29,7 @@ interface DbRow {
 function toTemplate(row: DbRow): ExpenseTemplate {
   return {
     id: row.id,
-    name: row.name,
+    name: row.template_name,
     destination: row.visit_to,
     payerDetail: row.route_text,
     isRoundTrip: row.is_round_trip ?? false,
@@ -71,7 +71,7 @@ export class ExpenseTemplateService {
 
       const row = {
         user_id: session.user.id,
-        name: draft.name,
+        template_name: draft.name,
         visit_to: draft.destination,
         route_text: draft.payerDetail,
         is_round_trip: draft.isRoundTrip,

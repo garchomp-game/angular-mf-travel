@@ -37,7 +37,7 @@ describe('ExpenseTemplateService', () => {
       data: [
         {
           id: 't1',
-          name: '大阪出張',
+          template_name: '大阪出張',
           visit_to: '大阪本社',
           route_text: 'JR東海 / 新幹線',
           is_round_trip: true,
@@ -93,7 +93,7 @@ describe('ExpenseTemplateService', () => {
   it('should save a new template', async () => {
     const savedRow = {
       id: 't-new',
-      name: '名古屋日帰り',
+      template_name: '名古屋日帰り',
       visit_to: '名古屋支社',
       route_text: 'JR東海',
       is_round_trip: false,
