@@ -8,3 +8,4 @@ reference/llms/supabase-cli.txt
 app/.env.e2e
 app/out-tsc/
 app/dist/
+reference
