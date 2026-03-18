@@ -196,4 +196,48 @@ describe('ExpenseEntryPageComponent', () => {
       expect.objectContaining({ name: 'カスタム名' }),
     );
   });
+
+  describe('applyTemplate', () => {
+    const mockTemplate = {
+      id: 'tpl-1',
+      name: '大阪出張',
+      destination: '大阪本社',
+      payerDetail: 'JR東海 / 新幹線',
+      isRoundTrip: true,
+      category: '旅費交通費',
+      taxType: '課税',
+      preApprovalNumber: 'AP-001',
+    };
+
+    it('should populate form fields from template', async () => {
+      mockTemplateService.list.mockResolvedValue([mockTemplate]);
+      const fixture = TestBed.createComponent(ExpenseEntryPageComponent);
+      await fixture.componentInstance.ngOnInit();
+      fixture.detectChanges();
+
+      const event = { target: { value: 'tpl-1' } } as unknown as Event;
+      fixture.componentInstance.applyTemplate(event);
+
+      const form = fixture.componentInstance.expenseForm;
+      expect(form.controls.destination.value).toBe('大阪本社');
+      expect(form.controls.payerDetail.value).toBe('JR東海 / 新幹線');
+      expect(form.controls.isRoundTrip.value).toBe(true);
+      expect(form.controls.category.value).toBe('旅費交通費');
+      expect(form.controls.taxType.value).toBe('課税');
+      expect(form.controls.preApprovalNumber.value).toBe('AP-001');
+    });
+
+    it('should not modify date field when template is applied', async () => {
+      mockTemplateService.list.mockResolvedValue([mockTemplate]);
+      const fixture = TestBed.createComponent(ExpenseEntryPageComponent);
+      await fixture.componentInstance.ngOnInit();
+      fixture.detectChanges();
+
+      // 日付は空のまま、テンプレートは日付を設定しない
+      expect(fixture.componentInstance.expenseForm.controls.date.value).toBe('');
+      const event = { target: { value: 'tpl-1' } } as unknown as Event;
+      fixture.componentInstance.applyTemplate(event);
+      expect(fixture.componentInstance.expenseForm.controls.date.value).toBe('');
+    });
+  });
 });

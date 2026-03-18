@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { SupabaseService } from '../../../core/supabase.service';
 import { LoggerService } from '../../../core/logger.service';
+import { type ExpenseRecordRow, toExpenseRecord, fromExpenseDraft } from './dto';
 
 export interface ExpenseRecord {
   id: string;
@@ -15,32 +16,6 @@ export interface ExpenseRecord {
 }
 
 export type ExpenseDraft = Omit<ExpenseRecord, 'id'>;
-
-interface DbRow {
-  id: string;
-  travel_date: string;
-  visit_to: string;
-  route_text: string;
-  is_round_trip: boolean;
-  category_code: string;
-  tax_code: string;
-  pre_approval_no: string | null;
-  memo: string | null;
-}
-
-function toRecord(row: DbRow): ExpenseRecord {
-  return {
-    id: row.id,
-    date: row.travel_date,
-    destination: row.visit_to,
-    payerDetail: row.route_text,
-    isRoundTrip: row.is_round_trip ?? false,
-    category: row.category_code || undefined,
-    taxType: row.tax_code || undefined,
-    preApprovalNumber: row.pre_approval_no || undefined,
-    memo: row.memo || undefined,
-  };
-}
 
 @Injectable({ providedIn: 'root' })
 export class ExpenseSupabaseService {
@@ -67,7 +42,7 @@ export class ExpenseSupabaseService {
         .order('travel_date', { ascending: false });
 
       if (error) throw error;
-      return (data as DbRow[]).map(toRecord);
+      return (data as ExpenseRecordRow[]).map(toExpenseRecord);
     } catch (e) {
       this.logger.error('[ExpenseApi] listByMonth failed', e);
       return [];
@@ -83,7 +58,7 @@ export class ExpenseSupabaseService {
         .single();
 
       if (error) throw error;
-      return toRecord(data as DbRow);
+      return toExpenseRecord(data as ExpenseRecordRow);
     } catch (e) {
       this.logger.error('[ExpenseApi] findById failed', { id, error: e });
       return undefined;
@@ -101,7 +76,7 @@ export class ExpenseSupabaseService {
 
       if (error) throw error;
       if (!data || data.length === 0) return undefined;
-      return toRecord(data[0] as DbRow);
+      return toExpenseRecord(data[0] as ExpenseRecordRow);
     } catch (e) {
       this.logger.error('[ExpenseApi] findDuplicate failed', e);
       return undefined;
@@ -109,16 +84,7 @@ export class ExpenseSupabaseService {
   }
 
   async save(draft: ExpenseDraft, id?: string): Promise<ExpenseRecord | undefined> {
-    const row = {
-      travel_date: draft.date,
-      visit_to: draft.destination,
-      route_text: draft.payerDetail,
-      is_round_trip: draft.isRoundTrip,
-      category_code: draft.category ?? '',
-      tax_code: draft.taxType ?? '',
-      pre_approval_no: draft.preApprovalNumber ?? null,
-      memo: draft.memo ?? null,
-    };
+    const row = fromExpenseDraft(draft);
 
     try {
       if (id) {
@@ -131,7 +97,7 @@ export class ExpenseSupabaseService {
 
         if (error) throw error;
         this.logger.info('[ExpenseApi] 更新成功', { id });
-        return toRecord(data as DbRow);
+        return toExpenseRecord(data as ExpenseRecordRow);
       }
 
       // Get user_id from current session
@@ -150,7 +116,7 @@ export class ExpenseSupabaseService {
 
       if (error) throw error;
       this.logger.info('[ExpenseApi] 作成成功', { id: data.id });
-      return toRecord(data as DbRow);
+      return toExpenseRecord(data as ExpenseRecordRow);
     } catch (e: unknown) {
       this.logger.error('[ExpenseApi] save failed', e instanceof Error ? e.message : e);
       return undefined;

@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { SupabaseService } from '../../../core/supabase.service';
 import { LoggerService } from '../../../core/logger.service';
+import { type ExpenseTemplateRow, toExpenseTemplate, fromTemplateDraft } from './dto';
 
 export interface ExpenseTemplate {
   id: string;
@@ -15,30 +16,6 @@ export interface ExpenseTemplate {
 
 export type TemplateDraft = Omit<ExpenseTemplate, 'id'>;
 
-interface DbRow {
-  id: string;
-  template_name: string;
-  visit_to: string;
-  route_text: string;
-  is_round_trip: boolean;
-  category_code: string;
-  tax_code: string;
-  pre_approval_no: string | null;
-}
-
-function toTemplate(row: DbRow): ExpenseTemplate {
-  return {
-    id: row.id,
-    name: row.template_name,
-    destination: row.visit_to,
-    payerDetail: row.route_text,
-    isRoundTrip: row.is_round_trip ?? false,
-    category: row.category_code || undefined,
-    taxType: row.tax_code || undefined,
-    preApprovalNumber: row.pre_approval_no || undefined,
-  };
-}
-
 @Injectable({ providedIn: 'root' })
 export class ExpenseTemplateService {
   private readonly sb = inject(SupabaseService);
@@ -52,7 +29,7 @@ export class ExpenseTemplateService {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      return (data as DbRow[]).map(toTemplate);
+      return (data as ExpenseTemplateRow[]).map(toExpenseTemplate);
     } catch (e) {
       this.logger.error('[Template] list failed', e);
       return [];
@@ -69,16 +46,7 @@ export class ExpenseTemplateService {
         return undefined;
       }
 
-      const row = {
-        user_id: session.user.id,
-        template_name: draft.name,
-        visit_to: draft.destination,
-        route_text: draft.payerDetail,
-        is_round_trip: draft.isRoundTrip,
-        category_code: draft.category ?? '',
-        tax_code: draft.taxType ?? '',
-        pre_approval_no: draft.preApprovalNumber ?? null,
-      };
+      const row = fromTemplateDraft(draft, session.user.id);
 
       const { data, error } = await this.sb.client
         .from('expense_templates')
@@ -88,7 +56,7 @@ export class ExpenseTemplateService {
 
       if (error) throw error;
       this.logger.info('[Template] 保存成功', { id: data.id });
-      return toTemplate(data as DbRow);
+      return toExpenseTemplate(data as ExpenseTemplateRow);
     } catch (e: unknown) {
       this.logger.error('[Template] save failed', e instanceof Error ? e.message : e);
       return undefined;
