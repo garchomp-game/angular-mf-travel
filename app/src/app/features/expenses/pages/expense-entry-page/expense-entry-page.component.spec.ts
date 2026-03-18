@@ -5,6 +5,7 @@ import { LoggerModule, NgxLoggerLevel } from 'ngx-logger';
 import { ExpenseSupabaseService } from '../../data/expense-supabase.service';
 import { ExpenseTemplateService } from '../../data/expense-template.service';
 import { AuthService } from '../../../../core/auth.service';
+import { TemplateNameModalComponent } from '../../components/template-name-modal/template-name-modal.component';
 
 describe('ExpenseEntryPageComponent', () => {
   const mockExpenseService = {
@@ -179,10 +180,16 @@ describe('ExpenseEntryPageComponent', () => {
     expect(mockExpenseService.save).toHaveBeenCalled();
   });
 
-  it('should prompt for template name when saveAsTemplate is checked', async () => {
-    vi.spyOn(window, 'prompt').mockReturnValue('カスタム名');
+  it('should open modal for template name when saveAsTemplate is checked', async () => {
     const fixture = TestBed.createComponent(ExpenseEntryPageComponent);
     fixture.detectChanges();
+
+    // Mock the modal's open method
+    const modal = fixture.componentInstance[
+      'templateNameModal'
+    ] as unknown as TemplateNameModalComponent;
+    vi.spyOn(modal, 'open').mockResolvedValue('カスタム名');
+
     fixture.componentInstance.saveAsTemplate = true;
     fixture.componentInstance.expenseForm.patchValue({
       date: '2026-03-20',
@@ -191,10 +198,31 @@ describe('ExpenseEntryPageComponent', () => {
       isRoundTrip: false,
     });
     await fixture.componentInstance.submit();
-    expect(window.prompt).toHaveBeenCalled();
+    expect(modal.open).toHaveBeenCalledWith('テスト先');
     expect(mockTemplateService.save).toHaveBeenCalledWith(
       expect.objectContaining({ name: 'カスタム名' }),
     );
+  });
+
+  it('should not save template when modal is cancelled', async () => {
+    const fixture = TestBed.createComponent(ExpenseEntryPageComponent);
+    fixture.detectChanges();
+
+    const modal = fixture.componentInstance[
+      'templateNameModal'
+    ] as unknown as TemplateNameModalComponent;
+    vi.spyOn(modal, 'open').mockResolvedValue(null);
+
+    fixture.componentInstance.saveAsTemplate = true;
+    fixture.componentInstance.expenseForm.patchValue({
+      date: '2026-03-20',
+      destination: 'テスト先',
+      payerDetail: 'JR東海',
+      isRoundTrip: false,
+    });
+    await fixture.componentInstance.submit();
+    expect(modal.open).toHaveBeenCalled();
+    expect(mockTemplateService.save).not.toHaveBeenCalled();
   });
 
   describe('applyTemplate', () => {

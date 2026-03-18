@@ -18,13 +18,9 @@ test.describe('テンプレート管理', () => {
 
   // 経費入力でテンプレにも保存 → テンプレ一覧に表示
   test('経費入力からテンプレート保存し一覧に表示される', async ({ page }) => {
-    // confirm (重複チェック) と prompt (テンプレ名) 両方を処理
+    // confirm (重複チェック) ダイアログは自動承認
     page.on('dialog', async (dialog) => {
-      if (dialog.type() === 'prompt') {
-        await dialog.accept('E2Eテンプレート');
-      } else {
-        await dialog.accept();
-      }
+      await dialog.accept();
     });
 
     await page.goto('/entry');
@@ -36,6 +32,13 @@ test.describe('テンプレート管理', () => {
     // テンプレにも保存チェック
     await page.getByLabel('テンプレにも保存').check();
     await page.getByRole('button', { name: '保存' }).click();
+
+    // モーダルが表示されるので、テンプレート名を入力して保存
+    const modal = page.locator('dialog.modal');
+    await expect(modal).toBeVisible({ timeout: 5000 });
+    await page.locator('#template-name-input').clear();
+    await page.locator('#template-name-input').fill('E2Eテンプレート');
+    await page.locator('#template-modal-confirm').click();
 
     await page.waitForURL('**/list**', { timeout: 15000 });
 
@@ -49,13 +52,9 @@ test.describe('テンプレート管理', () => {
 
   // テンプレートから入力フォームに反映（テンプレート作成 → 選択）
   test('テンプレート選択でフォームに値が反映される', async ({ page }) => {
-    // confirm / prompt ダイアログ処理
+    // confirmダイアログは自動承認
     page.on('dialog', async (dialog) => {
-      if (dialog.type() === 'prompt') {
-        await dialog.accept('セレクトテスト用');
-      } else {
-        await dialog.accept();
-      }
+      await dialog.accept();
     });
 
     // 1. テンプレートを経費入力から作成
@@ -66,6 +65,14 @@ test.describe('テンプレート管理', () => {
     await page.getByLabel('往復').check();
     await page.getByLabel('テンプレにも保存').check();
     await page.getByRole('button', { name: '保存' }).click();
+
+    // モーダルでテンプレート名を入力
+    const modal = page.locator('dialog.modal');
+    await expect(modal).toBeVisible({ timeout: 5000 });
+    await page.locator('#template-name-input').clear();
+    await page.locator('#template-name-input').fill('セレクトテスト用');
+    await page.locator('#template-modal-confirm').click();
+
     await page.waitForURL('**/list**', { timeout: 15000 });
 
     // 2. テンプレートページで作成を確認

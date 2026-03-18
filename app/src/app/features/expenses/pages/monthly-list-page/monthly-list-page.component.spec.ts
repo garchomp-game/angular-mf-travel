@@ -7,6 +7,7 @@ import localeJa from '@angular/common/locales/ja';
 import { LOCALE_ID } from '@angular/core';
 import { ExpenseSupabaseService } from '../../data/expense-supabase.service';
 import { ExpenseTemplateService } from '../../data/expense-template.service';
+import { TemplateNameModalComponent } from '../../components/template-name-modal/template-name-modal.component';
 import { AuthService } from '../../../../core/auth.service';
 
 registerLocaleData(localeJa);
@@ -151,7 +152,7 @@ describe('MonthlyListPageComponent', () => {
     const createSpy = vi.spyOn(URL, 'createObjectURL').mockReturnValue('blob:test');
     const revokeSpy = vi.spyOn(URL, 'revokeObjectURL').mockImplementation(() => {});
     const clickSpy = vi.fn();
-    vi.spyOn(document, 'createElement').mockReturnValue({
+    const createElementSpy = vi.spyOn(document, 'createElement').mockReturnValue({
       set href(_: string) {},
       set download(_: string) {},
       click: clickSpy,
@@ -161,5 +162,40 @@ describe('MonthlyListPageComponent', () => {
     expect(createSpy).toHaveBeenCalled();
     expect(clickSpy).toHaveBeenCalled();
     expect(revokeSpy).toHaveBeenCalled();
+
+    // Restore to prevent DOM corruption in subsequent tests
+    createElementSpy.mockRestore();
+  });
+
+  it('should add expense to template when modal confirms', async () => {
+    const fixture = TestBed.createComponent(MonthlyListPageComponent);
+    await fixture.componentInstance.ngOnInit();
+    fixture.detectChanges();
+
+    const modal = fixture.componentInstance[
+      'templateNameModal'
+    ] as unknown as TemplateNameModalComponent;
+    vi.spyOn(modal, 'open').mockResolvedValue('テストテンプレ');
+
+    await fixture.componentInstance.addToTemplate('1');
+    expect(modal.open).toHaveBeenCalledWith('大阪本社');
+    expect(mockTemplateService.save).toHaveBeenCalledWith(
+      expect.objectContaining({ name: 'テストテンプレ', destination: '大阪本社' }),
+    );
+  });
+
+  it('should not save template when modal is cancelled', async () => {
+    const fixture = TestBed.createComponent(MonthlyListPageComponent);
+    await fixture.componentInstance.ngOnInit();
+    fixture.detectChanges();
+
+    const modal = fixture.componentInstance[
+      'templateNameModal'
+    ] as unknown as TemplateNameModalComponent;
+    vi.spyOn(modal, 'open').mockResolvedValue(null);
+
+    await fixture.componentInstance.addToTemplate('1');
+    expect(modal.open).toHaveBeenCalled();
+    expect(mockTemplateService.save).not.toHaveBeenCalled();
   });
 });

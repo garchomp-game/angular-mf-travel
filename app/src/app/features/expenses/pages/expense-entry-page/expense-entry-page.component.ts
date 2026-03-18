@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectorRef, Component, NgZone, OnInit, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, NgZone, OnInit, ViewChild, inject } from '@angular/core';
 import { FormBuilder, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ExpenseSupabaseService } from '../../data/expense-supabase.service';
@@ -7,6 +7,7 @@ import { ExpenseTemplate, ExpenseTemplateService } from '../../data/expense-temp
 import { BottomNavComponent } from '../../components/bottom-nav/bottom-nav.component';
 import { SectionCardComponent } from '../../components/section-card/section-card.component';
 import { ThemeToggleComponent } from '../../components/theme-toggle/theme-toggle.component';
+import { TemplateNameModalComponent } from '../../components/template-name-modal/template-name-modal.component';
 import { AuthService } from '../../../../core/auth.service';
 
 const DETAIL_PANEL_STORAGE_KEY = 'expense-entry-details-expanded';
@@ -20,6 +21,7 @@ const DETAIL_PANEL_STORAGE_KEY = 'expense-entry-details-expanded';
     SectionCardComponent,
     BottomNavComponent,
     ThemeToggleComponent,
+    TemplateNameModalComponent,
   ],
   template: `
     <main class="max-w-[720px] mx-auto p-4 grid gap-4">
@@ -157,6 +159,7 @@ const DETAIL_PANEL_STORAGE_KEY = 'expense-entry-details-expanded';
       </app-section-card>
 
       <app-bottom-nav />
+      <app-template-name-modal />
     </main>
   `,
 })
@@ -169,6 +172,9 @@ export class ExpenseEntryPageComponent implements OnInit {
   private readonly auth = inject(AuthService);
   private readonly cdr = inject(ChangeDetectorRef);
   private readonly zone = inject(NgZone);
+
+  @ViewChild(TemplateNameModalComponent)
+  private readonly templateNameModal!: TemplateNameModalComponent;
 
   detailsExpanded = false;
   editId: string | null = null;
@@ -262,7 +268,7 @@ export class ExpenseEntryPageComponent implements OnInit {
 
     // テンプレにも保存
     if (this.saveAsTemplate && !this.editId) {
-      const templateName = window.prompt('テンプレート名を入力してください', payload.destination);
+      const templateName = await this.templateNameModal.open(payload.destination);
       if (templateName) {
         await this.templateService.save({
           name: templateName,

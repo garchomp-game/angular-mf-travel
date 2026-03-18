@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, ViewChild, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { BottomNavComponent } from '../../components/bottom-nav/bottom-nav.component';
 import { ExpenseCardComponent } from '../../components/expense-card/expense-card.component';
@@ -8,6 +8,7 @@ import { MonthSwitcherComponent } from '../../components/month-switcher/month-sw
 import { SearchBoxComponent } from '../../components/search-box/search-box.component';
 import { SectionCardComponent } from '../../components/section-card/section-card.component';
 import { ThemeToggleComponent } from '../../components/theme-toggle/theme-toggle.component';
+import { TemplateNameModalComponent } from '../../components/template-name-modal/template-name-modal.component';
 import { ExpenseRecord, ExpenseSupabaseService } from '../../data/expense-supabase.service';
 import { ExpenseTemplateService } from '../../data/expense-template.service';
 import { AuthService } from '../../../../core/auth.service';
@@ -25,6 +26,7 @@ const VIEW_MODE_KEY = 'expense-list-view-mode';
     BottomNavComponent,
     ThemeToggleComponent,
     SectionCardComponent,
+    TemplateNameModalComponent,
   ],
   template: `
     <main class="max-w-[720px] mx-auto p-4 grid gap-4">
@@ -113,6 +115,7 @@ const VIEW_MODE_KEY = 'expense-list-view-mode';
       }
 
       <app-bottom-nav />
+      <app-template-name-modal />
     </main>
   `,
 })
@@ -123,6 +126,9 @@ export class MonthlyListPageComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly cdr = inject(ChangeDetectorRef);
+
+  @ViewChild(TemplateNameModalComponent)
+  private readonly templateNameModal!: TemplateNameModalComponent;
 
   months = ['2026年03月', '2026年02月', '2026年01月'];
   monthIndex = 0;
@@ -202,7 +208,7 @@ export class MonthlyListPageComponent implements OnInit {
     const expense = this.expenses.find((e) => e.id === id);
     if (!expense) return;
 
-    const name = window.prompt('テンプレート名を入力してください', expense.destination);
+    const name = await this.templateNameModal.open(expense.destination);
     if (!name) return;
 
     const result = await this.templateService.save({
